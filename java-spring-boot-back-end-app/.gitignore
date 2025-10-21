@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Spring Boot app secrets
+java-spring-boot-back-end-app/src/main/resources/application.properties
