@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -22,11 +23,19 @@ public class UserStackController {
     private final UserStackRepository userStackRepo;
     private final UserRepository userRepo;
 
+    // GET /api/user-stack?userId=1
     @GetMapping
     public List<UserStack> listByUser(@RequestParam Long userId) {
         return userStackRepo.findAllByUserId(userId);
     }
 
+    // (Optional) GET /api/user-stack/user/1
+    @GetMapping("/user/{userId}")
+    public List<UserStack> listByUserPath(@PathVariable Long userId) {
+        return userStackRepo.findAllByUserId(userId);
+    }
+
+    // POST /api/user-stack
     @PostMapping
     public ResponseEntity<UserStack> create(@RequestBody CreateUserStackRequest req) {
         User user = userRepo.findById(req.getUserId())
@@ -40,9 +49,11 @@ public class UserStackController {
         us.setPricePaidPerUnitUsd(req.getPricePaidPerUnitUsd());
         us.setNotes(req.getNotes());
 
-        return ResponseEntity.ok(userStackRepo.save(us));
+        UserStack saved = userStackRepo.save(us);
+        return ResponseEntity.created(URI.create("/api/user-stack/" + saved.getId())).body(saved);
     }
 
+    // PUT /api/user-stack/{id}
     @PutMapping("/{id}")
     public ResponseEntity<UserStack> update(@PathVariable Long id, @RequestBody UpdateUserStackRequest req) {
         UserStack us = userStackRepo.findById(id)
@@ -57,10 +68,20 @@ public class UserStackController {
         return ResponseEntity.ok(userStackRepo.save(us));
     }
 
+    // DELETE /api/user-stack/{id}
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
+        if (!userStackRepo.existsById(id)) return ResponseEntity.notFound().build();
         userStackRepo.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // GET /api/user-stack/{id}
+    @GetMapping("/{id}")
+    public ResponseEntity<UserStack> one(@PathVariable Long id) {
+        return userStackRepo.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @Data
