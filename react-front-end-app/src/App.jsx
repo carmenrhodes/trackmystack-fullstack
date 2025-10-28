@@ -11,7 +11,8 @@ import Home from './pages/Home';
 import About from './pages/About';
 import FindCoinShops from './pages/FindCoinShops';
 import SpotTracker from './pages/SpotTracker';
-
+import Login from './pages/Login';
+import Register from './pages/Register';
 
 function App() {
   // State for the stack inventory
@@ -69,6 +70,8 @@ function App() {
             <Route path="/find-shops" element={<FindCoinShops />} />
             <Route path="/spot-tracker" element={<SpotTracker />} />
             <Route path="/about" element={<About />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
           </Routes>
         </main>
       </div>
