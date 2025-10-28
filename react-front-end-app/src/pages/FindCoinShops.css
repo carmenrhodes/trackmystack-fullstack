@@ -1,0 +1,33 @@
+.shops-page {
+    max-width: 800px;
+    margin: 3rem auto;
+    padding: 2rem;
+    background-color: #f5f5f5;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+.shops-page h2 {
+    font-size: 2rem;
+    text-align: center;
+    color: #2f5061;
+    margin-bottom: 1rem;
+}
+
+.shops-page p {
+    font-family: 'Roboto', sans-serif;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    text-align: center;
+    color: #333;
+}
+
+.map-image {
+    width: 100%;
+    max-width: 800px;
+    display: block;
+    margin: 2rem auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}

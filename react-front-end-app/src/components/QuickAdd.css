@@ -1,0 +1,30 @@
+.quick-add {
+    background: #f8f8f8;
+    padding: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.quick-add input {
+    flex: 1 1 120px;
+    padding: 0.4rem 0.6rem;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+}
+
+.quick-add button {
+    background: #2f5061;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.quick-add button:hover {
+    background: #3e6377;
+}

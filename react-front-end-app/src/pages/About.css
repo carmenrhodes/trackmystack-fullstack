@@ -1,0 +1,30 @@
+.about-page {
+    max-width: 800px;
+    max-height: 400px;
+    margin: 3rem auto;
+    padding: 1rem;
+    background-color: #f5f5f5;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.about-page h2 {
+    font-size: 2rem;
+    text-align: center;
+    color: #2f5061;
+}
+
+.about-page p {
+    font-family: 'Roboto', sans-serif;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    text-align: center;
+    color: #333;
+}
+
+.tagline {
+    font-style: italic;
+    font-size: 1.1rem;
+    text-align: center;
+    color: #b8860b;
+}
