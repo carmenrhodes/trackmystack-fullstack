@@ -1,0 +1,29 @@
+#########################
+# Backend (Spring Boot) #
+#########################
+/java-spring-boot-back-end-app/target/
+/java-spring-boot-back-end-app/.idea/
+/java-spring-boot-back-end-app/.mvn/
+/java-spring-boot-back-end-app/mvnw
+/java-spring-boot-back-end-app/mvnw.cmd
+/java-spring-boot-back-end-app/.classpath
+/java-spring-boot-back-end-app/.project
+/java-spring-boot-back-end-app/.settings/
+/java-spring-boot-back-end-app/src/main/resources/application.properties
+
+#########################
+# Frontend (React / Vite)
+#########################
+react-front-end-app/node_modules
+react-front-end-app/dist
+react-front-end-app/build
+react-front-end-app/.env
+react-front-end-app/.env.local
+react-front-end-app/.DS_Store
+
+#########################
+# System / Editor files
+#########################
+.vscode/
+.DS_Store
+Thumbs.db
