@@ -1,0 +1,51 @@
+.dashboard-container {
+  max-width: 900px;
+  margin: 3rem auto;
+  padding: 2rem;
+  background-color: #f5f5f5;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.dashboard {
+  padding: 1rem;
+}
+
+.summary-cards {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.summary-cards .card {
+  background-color: #f0f0f0;
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  flex: 1;
+}
+
+/* Styling for tablet sized devices */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .dashboard {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .summary-cards {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .card {
+    width: 45%;
+    margin: 0.5rem;
+  }
+
+  .dashboard-container {
+    padding: 1rem;
+    max-height: 800px;
+  }
+}
