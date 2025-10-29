@@ -3,20 +3,20 @@ import "./Home.css";
 import SpotPrices from "../components/SpotPrices";
 /* Import for test functions 
 import { calculateTotalValue, calculateTotalWeight } from "../utils/utils";*/
-import { useState, useEffect } from "react";
-import { mockStacks } from "../utils/mockData";
+// import { useState, useEffect } from "react";
+// import { mockStacks } from "../utils/mockData";
 
 function Home({ stack, onAdd }) {
-    const useMockData = true; // change to false after testing
+    /*const useMockData = true; // change to false after testing
     const [totalWeight, setTotalWeight] = useState(0);
-    const [totalValue, setTotalValue] = useState(0);
-  //const totalWeight = stack.reduce((sum, i) => sum + i.weight, 0);
-    //const totalValue = stack.reduce((sum, i) => sum + i.price, 0);
+    const [totalValue, setTotalValue] = useState(0); */
+    const totalWeight = stack.reduce((sum, i) => sum + i.weight, 0);
+    const totalValue = stack.reduce((sum, i) => sum + i.price, 0);
     /* For testing
     const totalWeight = calculateTotalWeight(stack);
     const totalValue = calculateTotalValue(stack);*/
 
-    useEffect(() => {
+    /* useEffect(() => {
         if (useMockData) {
             // pretend these totals are calculated from the backend
             // either hardcode OR calculate from mockStacks
@@ -40,7 +40,7 @@ function Home({ stack, onAdd }) {
 
         
         }
-    }, [useMockData, stack]);
+    }, [useMockData, stack]); */
 
     return (
         <div className="dashboard-container">
