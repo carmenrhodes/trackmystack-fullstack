@@ -1,8 +1,22 @@
 import './StackerTracker.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { mockStacks } from '../utils/mockData';
 
 // StackerTracker.jsx - Page to display, edit, and delete stack items
 function StackerTracker({ stack, onDelete, onEdit, editingItem, setEditingItem, onUpdate }) {
+
+  const useMockData = true; //set to false after testing
+ 
+
+useEffect(() => {
+  if (useMockData) {
+    // Simulate API delay
+    setTimeout(() => {
+      onUpdate(mockStacks); // Load mock data into parent state
+    }, 400);
+  }
+}, [useMockData]);
+
   const recentItems = [...stack].slice(-3).reverse();
   const [sortBy, setSortBy] = useState('date');
 
