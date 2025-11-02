@@ -1,11 +1,17 @@
-import './StackerTracker.css';
-import { useState } from 'react';
+import "./StackerTracker.css";
+import { useState } from "react";
 // import { mockStacks } from '../utils/mockData';
 
 // StackerTracker.jsx - Page to display, edit, and delete stack items
-function StackerTracker({ stack, onDelete, onEdit, editingItem, setEditingItem, onUpdate }) {
-
- /* const useMockData = true; //set to false after testing
+function StackerTracker({
+  stack,
+  onDelete,
+  onEdit,
+  editingItem,
+  setEditingItem,
+  onUpdate,
+}) {
+  /* const useMockData = true; //set to false after testing
  
 
 useEffect(() => {
@@ -18,17 +24,17 @@ useEffect(() => {
 }, [useMockData]); */
 
   const recentItems = [...stack].slice(-3).reverse();
-  const [sortBy, setSortBy] = useState('date');
+  const [sortBy, setSortBy] = useState("date");
 
   // Sort logic
   const sortedStack = [...stack].sort((a, b) => {
-    if (sortBy === 'date') {
+    if (sortBy === "date") {
       return new Date(b.date) - new Date(a.date);
-    } else if (sortBy === 'weight') {
+    } else if (sortBy === "weight") {
       return b.weight - a.weight;
-    } else if (sortBy === 'metal') {
+    } else if (sortBy === "metal") {
       return a.metal.localeCompare(b.metal);
-    } else if (sortBy === 'price') {
+    } else if (sortBy === "price") {
       return b.price - a.price;
     }
     return 0;
@@ -38,8 +44,6 @@ useEffect(() => {
     <div className="stacker-tracker">
       <h2>StackerTracker</h2>
 
-
-
       {stack.length === 0 ? (
         <p className="empty-message">Your stack is currently empty.</p>
       ) : (
@@ -48,18 +52,27 @@ useEffect(() => {
             {recentItems.map((item) => (
               <div className="card" key={item.id}>
                 <h3>{item.metal}</h3>
-                <p><strong>Weight:</strong> {item.weight} oz</p>
-                <p><strong>Price:</strong> ${item.price}</p>
-                <p><strong>Date:</strong> {item.date}</p>
+                <p>
+                  <strong>Weight:</strong> {item.weight} oz
+                </p>
+                <p>
+                  <strong>Price:</strong> ${item.price}
+                </p>
+                <p>
+                  <strong>Date:</strong>{" "}
+                  {new Date(item.date).toLocaleDateString()}
+                </p>
               </div>
             ))}
           </div>
 
-
           <div className="controls">
             <label>
-              Sort by:{' '}
-              <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+              Sort by:{" "}
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              >
                 <option value="date">Date (Newest First)</option>
                 <option value="weight">Weight (Heaviest First)</option>
                 <option value="metal">Metal Type (A–Z)</option>
@@ -92,7 +105,10 @@ useEffect(() => {
                             type="text"
                             value={editingItem.metal}
                             onChange={(e) =>
-                              setEditingItem({ ...editingItem, metal: e.target.value })
+                              setEditingItem({
+                                ...editingItem,
+                                metal: e.target.value,
+                              })
                             }
                           />
                         ) : (
@@ -106,7 +122,10 @@ useEffect(() => {
                             type="number"
                             value={editingItem.weight}
                             onChange={(e) =>
-                              setEditingItem({ ...editingItem, weight: e.target.value })
+                              setEditingItem({
+                                ...editingItem,
+                                weight: e.target.value,
+                              })
                             }
                           />
                         ) : (
@@ -120,7 +139,10 @@ useEffect(() => {
                             type="number"
                             value={editingItem.price}
                             onChange={(e) =>
-                              setEditingItem({ ...editingItem, price: e.target.value })
+                              setEditingItem({
+                                ...editingItem,
+                                price: e.target.value,
+                              })
                             }
                           />
                         ) : (
@@ -132,13 +154,16 @@ useEffect(() => {
                         {isEditing ? (
                           <input
                             type="date"
-                            value={editingItem.date}
+                            value={(editingItem?.date || "").slice(0, 10)}
                             onChange={(e) =>
-                              setEditingItem({ ...editingItem, date: e.target.value })
+                              setEditingItem({
+                                ...editingItem,
+                                date: e.target.value,
+                              })
                             }
                           />
                         ) : (
-                          item.date
+                          new Date(item.date).toLocaleDateString()
                         )}
                       </td>
 

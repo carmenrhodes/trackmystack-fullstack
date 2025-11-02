@@ -13,22 +13,64 @@ import FindCoinShops from './pages/FindCoinShops';
 import SpotTracker from './pages/SpotTracker';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import { fetchUserStack, addStackItem } from './services/stackService';
 
 function App() {
   // State for the stack inventory
   const [stack, setStack] = useState([]);
 
-  // Saves stack to local Storage whenever it changes
+// Load stack from backend when app loads
   useEffect(() => {
-    localStorage.setItem("stack", JSON.stringify(stack));
-  }, [stack]);
+    async function load() {
+      try {
+        setLoading(true);
+        const data = await fetchUserStack();
+      
+        const normalized = data.map(item => ({
+          id: item.id,
+          metal: item.metal,
+          weight: item.weightOtz,
+          price: item.pricePaidPerUnitUsd,
+          date: item.createdAt || "—", 
+          notes: item.notes || ""
+        }));
+        setStack(normalized);
+        setError(null);
+      } catch (err) {
+        console.error(err);
+        setError("Could not load your stack. Is the backend running?");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    load();
+  }, []);
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
+  const [loading, setLoading] = useState(true);  
+  const [error, setError] = useState(null);
 
-  // Function to add a new item to the stack
-  const handleAddItem = (newItem) => {
-    setStack([...stack, newItem]);
+   // Add a new stack item (POST to backend)
+  const handleAddItem = async (newItem) => {
+    try {
+      const saved = await addStackItem(newItem);
+      // normalize saved item for UI
+      const normalized = {
+        id: saved.id,
+        metal: saved.metal,
+        weight: saved.weightOtz,
+        price: saved.pricePaidPerUnitUsd,
+        date: saved.createdAt || "—",
+        notes: saved.notes || ""
+      };
+
+      setStack(prev => [...prev, normalized]);
+    } catch (err) {
+      console.error(err);
+      alert("Couldn't save item to backend.");
+    }
   };
 
   // Function to delete an item from the stack
@@ -57,22 +99,28 @@ function App() {
         <Sidebar menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
 
         <main className="content">
-          <Routes>
-            <Route path="/" element={<Home stack={stack} onAdd={handleAddItem} />} />
-            <Route path="/add" element={<AddItem onAdd={handleAddItem} />} />
-            <Route path="/stack" element={<StackerTracker
+          {loading ? (
+            <p style={{ padding: '1rem' }}>Loading your stack...</p>
+          ) : error ? (
+            <p style={{ padding: '1rem', color: 'red' }}>{error}</p>
+          ) : (
+            <Routes>
+             <Route path="/" element={<Home stack={stack} onAdd={handleAddItem} />} />
+             <Route path="/add" element={<AddItem onAdd={handleAddItem} />} />
+             <Route path="/stack" element={<StackerTracker
               stack={stack}
               onDelete={handleDeleteItem}
               onEdit={handleEditItem}
               editingItem={editingItem}
               setEditingItem={setEditingItem}
               onUpdate={handleUpdateItem} />} />
-            <Route path="/find-shops" element={<FindCoinShops />} />
-            <Route path="/spot-tracker" element={<SpotTracker />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+             <Route path="/find-shops" element={<FindCoinShops />} />
+             <Route path="/spot-tracker" element={<SpotTracker />} />
+             <Route path="/about" element={<About />} />
+             <Route path="/login" element={<Login />} />
+             <Route path="/register" element={<Register />} />
           </Routes>
+        )}
         </main>
       </div>
 
