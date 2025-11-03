@@ -1,31 +1,6 @@
 import "./StackerTracker.css";
 import { useState } from "react";
-
 // import { mockStacks } from '../utils/mockData';
-
-const fmtMoney = (v) =>
-  v == null
-    ? "—"
-    : `$${Number(v).toLocaleString(undefined, {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      })}`;
-
-function parseLocalDate(ymd) {
-  const [y, m, d] = String(ymd).split("-").map(Number);
-  if (!y || !m || !d) return null;
-  return new Date(y, m - 1, d);
-}
-
-function getDisplayDate(item) {
-  if (item?.purchasedOn) return parseLocalDate(item.purchasedOn);
-
-  const fromNotes = item?.notes?.match(/\d{4}-\d{2}-\d{2}/)?.[0];
-  if (fromNotes) return parseLocalDate(fromNotes);
-
-  if (item?.createdAt) return new Date(item.createdAt); // full instant is fine
-  return null;
-}
 
 // StackerTracker.jsx - Page to display, edit, and delete stack items
 function StackerTracker({
@@ -50,22 +25,18 @@ useEffect(() => {
 
   const [sortBy, setSortBy] = useState("date");
   const recentItems = [...stack].slice(-3).reverse();
+  const [sortBy, setSortBy] = useState("date");
 
   // Sort logic
   const sortedStack = [...stack].sort((a, b) => {
     if (sortBy === "date") {
-      const da = getDisplayDate(a);
-      const db = getDisplayDate(b);
-      return (db?.getTime?.() || 0) - (da?.getTime?.() || 0);
-    }
-    if (sortBy === "weight") {
-       return (b.weightOtz ?? 0) - (a.weightOtz ?? 0);
-    }
-    if (sortBy === "metal") {
-      return String(a.metal || "").localeCompare(String(b.metal || ""));
-    }
-    if (sortBy === "price") {
-      return (b.pricePaidPerUnitUsd ?? 0) - (a.pricePaidPerUnitUsd ?? 0);
+      return new Date(b.date) - new Date(a.date);
+    } else if (sortBy === "weight") {
+      return b.weight - a.weight;
+    } else if (sortBy === "metal") {
+      return a.metal.localeCompare(b.metal);
+    } else if (sortBy === "price") {
+      return b.price - a.price;
     }
     return 0;
   });
@@ -108,24 +79,21 @@ useEffect(() => {
       ) : (
         <>
           <div className="recent-cards">
-            {recentItems.map((item) => {
-              const d = getDisplayDate(item);
-              return (
-                <div className="card" key={item.id}>
-                  <h3>{item.metal}</h3>
-                  <p>
-                    <strong>Weight:</strong>{" "}
-                    {item.weightOtz == null ? "—" : `${item.weightOtz} otz`}
-                  </p>
-                  <p>
-                    <strong>Price:</strong> {fmtMoney(item.pricePaidPerUnitUsd)}
-                  </p>
-                  <p>
-                    <strong>Date:</strong> {d ? d.toLocaleDateString() : "—"}
-                  </p>
-                </div>
-              );
-            })}
+            {recentItems.map((item) => (
+              <div className="card" key={item.id}>
+                <h3>{item.metal}</h3>
+                <p>
+                  <strong>Weight:</strong> {item.weight} oz
+                </p>
+                <p>
+                  <strong>Price:</strong> ${item.price}
+                </p>
+                <p>
+                  <strong>Date:</strong>{" "}
+                  {new Date(item.date).toLocaleDateString()}
+                </p>
+              </div>
+            ))}
           </div>
 
           <div className="controls">
@@ -188,7 +156,7 @@ useEffect(() => {
                             onChange={(e) =>
                               setEditingItem({
                                 ...editingItem,
-                                weightOtz: e.target.value,
+                                weight: e.target.value,
                               })
                             }
                           />
@@ -208,7 +176,7 @@ useEffect(() => {
                             onChange={(e) =>
                               setEditingItem({
                                 ...editingItem,
-                                pricePaidPerUnitUsd: e.target.value,
+                                price: e.target.value,
                               })
                             }
                           />
@@ -221,18 +189,18 @@ useEffect(() => {
                         {isEditing ? (
                           <input
                             type="date"
-                            value={editingItem?.purchasedOn ?? ""}
+                            value={(editingItem?.date || "").slice(0, 10)}
                             onChange={(e) =>
                               setEditingItem({
                                 ...editingItem,
-                                purchasedOn: e.target.value,
+                                date: e.target.value,
                               })
                             }
                           />
                         ) : d ? (
                           d.toLocaleDateString()
                         ) : (
-                          "—"
+                          new Date(item.date).toLocaleDateString()
                         )}
                       </td>
 
