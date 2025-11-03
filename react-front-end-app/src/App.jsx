@@ -12,27 +12,28 @@ import FindCoinShops from './pages/FindCoinShops';
 import SpotTracker from './pages/SpotTracker';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import { fetchUserStack, addStackItem, updateStackItem, deleteStackItem } from './services/stackService';
+import { fetchUserStack, addStackItem } from './services/stackService';
 
 function App() {
   // State for the stack inventory
   const [stack, setStack] = useState([]);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-const refresh = async () => {
-  const data = await fetchUserStack();
-  setStack(data);
-};
 
 // Load stack from backend when app loads
   useEffect(() => {
-    (async () => {
+    async function load() {
       try {
         setLoading(true);
-        await refresh();
+        const data = await fetchUserStack();
+      
+        const normalized = data.map(item => ({
+          id: item.id,
+          metal: item.metal,
+          weight: item.weightOtz,
+          price: item.pricePaidPerUnitUsd,
+          date: item.createdAt || "—", 
+          notes: item.notes || ""
+        }));
+        setStack(normalized);
         setError(null);
       } catch (err) {
         console.error(err);
@@ -40,24 +41,34 @@ const refresh = async () => {
       } finally {
         setLoading(false);
       }
-    })();
+    }
+
+    load();
   }, []);
 
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
+  const [loading, setLoading] = useState(true);  
+  const [error, setError] = useState(null);
+
    // Add a new stack item (POST to backend)
-  const handleAddItem = async ({metal, weight, price, date}) => {
+  const handleAddItem = async (newItem) => {
     try {
-      await addStackItem({
-        metal,
-        weightOtz: Number(weight),
-        pricePaidPerUnitUsd: Number(price),
-        purchasedOn: date,
-        quantity: 1,
-        notes: null,
-      });
-      await refresh();
+      const saved = await addStackItem(newItem);
+      // normalize saved item for UI
+      const normalized = {
+        id: saved.id,
+        metal: saved.metal,
+        weight: saved.weightOtz,
+        price: saved.pricePaidPerUnitUsd,
+        date: saved.createdAt || "—",
+        notes: saved.notes || ""
+      };
+
+      setStack(prev => [...prev, normalized]);
     } catch (err) {
       console.error(err);
-      alert("Couldn't save item to backend");
+      alert("Couldn't save item to backend.");
     }
   };
 
