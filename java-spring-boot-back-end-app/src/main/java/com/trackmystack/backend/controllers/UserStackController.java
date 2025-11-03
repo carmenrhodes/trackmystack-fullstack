@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.time.LocalDate;
 
 import java.math.BigDecimal;
 import java.net.URI;
@@ -47,6 +48,7 @@ public class UserStackController {
         us.setWeightOtz(req.getWeightOtz());
         us.setQuantity(req.getQuantity());
         us.setPricePaidPerUnitUsd(req.getPricePaidPerUnitUsd());
+        us.setPurchasedOn(req.getPurchasedOn());
         us.setNotes(req.getNotes());
 
         UserStack saved = userStackRepo.save(us);
@@ -63,6 +65,7 @@ public class UserStackController {
         if (req.getWeightOtz() != null) us.setWeightOtz(req.getWeightOtz());
         if (req.getQuantity() != null) us.setQuantity(req.getQuantity());
         if (req.getPricePaidPerUnitUsd() != null) us.setPricePaidPerUnitUsd(req.getPricePaidPerUnitUsd());
+        if (req.getPurchasedOn() != null) us.setPurchasedOn(req.getPurchasedOn());
         if (req.getNotes() != null) us.setNotes(req.getNotes());
 
         return ResponseEntity.ok(userStackRepo.save(us));
@@ -91,6 +94,7 @@ public class UserStackController {
         private BigDecimal weightOtz;
         private Integer quantity;
         private BigDecimal pricePaidPerUnitUsd;
+        private LocalDate purchasedOn;
         private String notes;
     }
 
@@ -100,6 +104,7 @@ public class UserStackController {
         private BigDecimal weightOtz;
         private Integer quantity;
         private BigDecimal pricePaidPerUnitUsd;
+        private LocalDate purchasedOn;
         private String notes;
     }
 }

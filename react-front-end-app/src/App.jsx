@@ -1,6 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
-import { useState } from 'react';
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Sidebar from './components/Sidebar';
@@ -13,28 +12,27 @@ import FindCoinShops from './pages/FindCoinShops';
 import SpotTracker from './pages/SpotTracker';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import { fetchUserStack, addStackItem } from './services/stackService';
+import { fetchUserStack, addStackItem, updateStackItem, deleteStackItem } from './services/stackService';
 
 function App() {
   // State for the stack inventory
   const [stack, setStack] = useState([]);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+const refresh = async () => {
+  const data = await fetchUserStack();
+  setStack(data);
+};
 
 // Load stack from backend when app loads
   useEffect(() => {
-    async function load() {
+    (async () => {
       try {
         setLoading(true);
-        const data = await fetchUserStack();
-      
-        const normalized = data.map(item => ({
-          id: item.id,
-          metal: item.metal,
-          weight: item.weightOtz,
-          price: item.pricePaidPerUnitUsd,
-          date: item.createdAt || "—", 
-          notes: item.notes || ""
-        }));
-        setStack(normalized);
+        await refresh();
         setError(null);
       } catch (err) {
         console.error(err);
@@ -42,53 +40,52 @@ function App() {
       } finally {
         setLoading(false);
       }
-    }
-
-    load();
+    })();
   }, []);
 
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState(null);
-  const [loading, setLoading] = useState(true);  
-  const [error, setError] = useState(null);
-
    // Add a new stack item (POST to backend)
-  const handleAddItem = async (newItem) => {
+  const handleAddItem = async ({metal, weight, price, date}) => {
     try {
-      const saved = await addStackItem(newItem);
-      // normalize saved item for UI
-      const normalized = {
-        id: saved.id,
-        metal: saved.metal,
-        weight: saved.weightOtz,
-        price: saved.pricePaidPerUnitUsd,
-        date: saved.createdAt || "—",
-        notes: saved.notes || ""
-      };
-
-      setStack(prev => [...prev, normalized]);
+      await addStackItem({
+        metal,
+        weightOtz: Number(weight),
+        pricePaidPerUnitUsd: Number(price),
+        purchasedOn: date,
+        quantity: 1,
+        notes: null,
+      });
+      await refresh();
     } catch (err) {
       console.error(err);
-      alert("Couldn't save item to backend.");
+      alert("Couldn't save item to backend");
     }
   };
 
   // Function to delete an item from the stack
-  const handleDeleteItem = (id) => {
-    const updatedStack = stack.filter((item) => item.id !== id);
-    setStack(updatedStack);
-  }
+  const handleDeleteItem = async (id) => {
+    try {
+      console.log("Deleting id", id);
+      await deleteStackItem(id);
+      await refresh();
+    } catch (err) {
+      console.error(err);
+      alert("Couldn't delete item.")
+    }
+  };
 
   const handleEditItem = (item) => {
     setEditingItem(item);
   };
 
-  const handleUpdateItem = (updatedItem) => {
-    const updatedStack = stack.map((item) =>
-      item.id === updatedItem.id ? updatedItem : item
-    );
-    setStack(updatedStack);
-    setEditingItem(null);
+  const handleUpdateItem = async ({ id, ...body }) => {
+    try {
+      await updateStackItem(id, body);
+      setEditingItem(null);
+      await refresh();
+  } catch (err) {
+    console.error(err);
+    alert("Couldn't update item.")
+    }
   };
 
   return (

@@ -17,20 +17,21 @@ function AddItem({ onAdd }) {
     }
 
     const newItem = {
-  id: Date.now(),
-  metal,
-  weight: parseFloat(weight),
-  price: parseFloat(price),
-  date,
-};
-
-    onAdd(newItem);
-
-    setMetal("");
-    setWeight("");
-    setPrice("");
-    setDate("");
+    metal,
+    weight: Number(weight),                
+    price: Number(price),                  
+    date: new Date(date).toISOString().slice(0, 10), 
   };
+
+  console.log("AddItem -> onAdd payload", newItem);
+
+  onAdd(newItem);
+
+  setMetal("");
+  setWeight("");
+  setPrice("");
+  setDate("");
+};
 
   return (
     <div className="add-item-page">
