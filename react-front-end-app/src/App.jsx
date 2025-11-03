@@ -1,6 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
-import { useState } from 'react';
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Sidebar from './components/Sidebar';
@@ -74,21 +73,30 @@ function App() {
   };
 
   // Function to delete an item from the stack
-  const handleDeleteItem = (id) => {
-    const updatedStack = stack.filter((item) => item.id !== id);
-    setStack(updatedStack);
-  }
+  const handleDeleteItem = async (id) => {
+    try {
+      console.log("Deleting id", id);
+      await deleteStackItem(id);
+      await refresh();
+    } catch (err) {
+      console.error(err);
+      alert("Couldn't delete item.")
+    }
+  };
 
   const handleEditItem = (item) => {
     setEditingItem(item);
   };
 
-  const handleUpdateItem = (updatedItem) => {
-    const updatedStack = stack.map((item) =>
-      item.id === updatedItem.id ? updatedItem : item
-    );
-    setStack(updatedStack);
-    setEditingItem(null);
+  const handleUpdateItem = async ({ id, ...body }) => {
+    try {
+      await updateStackItem(id, body);
+      setEditingItem(null);
+      await refresh();
+  } catch (err) {
+    console.error(err);
+    alert("Couldn't update item.")
+    }
   };
 
   return (

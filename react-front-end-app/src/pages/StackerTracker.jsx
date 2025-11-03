@@ -23,6 +23,7 @@ useEffect(() => {
   }
 }, [useMockData]); */
 
+  const [sortBy, setSortBy] = useState("date");
   const recentItems = [...stack].slice(-3).reverse();
   const [sortBy, setSortBy] = useState("date");
 
@@ -39,6 +40,35 @@ useEffect(() => {
     }
     return 0;
   });
+
+   const handleSave = async () => {
+    if (!editingItem?.id) return;
+    await onUpdate({
+      id: editingItem.id,
+      metal:
+        editingItem.metal != null
+          ? String(editingItem.metal).trim().toUpperCase()
+          : undefined,
+      weightOtz:
+        editingItem.weightOtz != null
+          ? Number(editingItem.weightOtz)
+          : undefined,
+      pricePaidPerUnitUsd:
+        editingItem.pricePaidPerUnitUsd != null
+          ? Number(editingItem.pricePaidPerUnitUsd)
+          : undefined,
+      quantity:
+        editingItem.quantity != null ? Number(editingItem.quantity) : undefined,
+      purchasedOn:
+        editingItem.purchasedOn != null ? editingItem.purchasedOn : undefined,
+      notes: editingItem.notes,
+    });
+    setEditingItem(null);
+  };
+
+   const handleDelete = async (id) => {
+    await onDelete(id);
+  };
 
   return (
     <div className="stacker-tracker">
@@ -86,7 +116,7 @@ useEffect(() => {
               <thead>
                 <tr>
                   <th>Metal</th>
-                  <th>Weight (oz)</th>
+                  <th>Weight (otz)</th>
                   <th>Price ($)</th>
                   <th>Date</th>
                   <th>Actions</th>
@@ -96,6 +126,7 @@ useEffect(() => {
               <tbody>
                 {sortedStack.map((item) => {
                   const isEditing = editingItem && editingItem.id === item.id;
+                  const d = getDisplayDate(item);
 
                   return (
                     <tr key={item.id}>
@@ -103,7 +134,7 @@ useEffect(() => {
                         {isEditing ? (
                           <input
                             type="text"
-                            value={editingItem.metal}
+                            value={editingItem.metal ?? ""}
                             onChange={(e) =>
                               setEditingItem({
                                 ...editingItem,
@@ -120,7 +151,8 @@ useEffect(() => {
                         {isEditing ? (
                           <input
                             type="number"
-                            value={editingItem.weight}
+                            step="0.0001"
+                            value={editingItem.weightOtz ?? ""}
                             onChange={(e) =>
                               setEditingItem({
                                 ...editingItem,
@@ -128,8 +160,10 @@ useEffect(() => {
                               })
                             }
                           />
+                        ) : item.weightOtz == null ? (
+                          "—"
                         ) : (
-                          item.weight
+                          item.weightOtz
                         )}
                       </td>
 
@@ -137,7 +171,8 @@ useEffect(() => {
                         {isEditing ? (
                           <input
                             type="number"
-                            value={editingItem.price}
+                            step="0.01"
+                            value={editingItem.pricePaidPerUnitUsd ?? ""}
                             onChange={(e) =>
                               setEditingItem({
                                 ...editingItem,
@@ -146,7 +181,7 @@ useEffect(() => {
                             }
                           />
                         ) : (
-                          `$${item.price}`
+                          fmtMoney(item.pricePaidPerUnitUsd)
                         )}
                       </td>
 
@@ -162,6 +197,8 @@ useEffect(() => {
                               })
                             }
                           />
+                        ) : d ? (
+                          d.toLocaleDateString()
                         ) : (
                           new Date(item.date).toLocaleDateString()
                         )}
@@ -172,7 +209,7 @@ useEffect(() => {
                           <>
                             <button
                               className="update-button"
-                              onClick={() => onUpdate(editingItem)}
+                              onClick={handleSave}
                             >
                               Save
                             </button>
@@ -193,7 +230,7 @@ useEffect(() => {
                             </button>
                             <button
                               className="delete-button"
-                              onClick={() => onDelete(item.id)}
+                              onClick={() => onDelete?.(item.id)}
                             >
                               Delete
                             </button>
