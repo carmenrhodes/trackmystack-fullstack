@@ -10,8 +10,23 @@ function Home({ stack, onAdd }) {
     /*const useMockData = true; // change to false after testing
     const [totalWeight, setTotalWeight] = useState(0);
     const [totalValue, setTotalValue] = useState(0); */
-    const totalWeight = stack.reduce((sum, i) => sum + i.weight, 0);
-    const totalValue = stack.reduce((sum, i) => sum + i.price, 0);
+    const num = (v, fallback = 0) => {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : fallback;
+};
+
+const totalWeight = (stack ?? []).reduce(
+  (sum, i) => sum + num(i.weightOtz ?? i.weight),
+  0
+);
+
+const totalValue = (stack ?? []).reduce((sum, i) => {
+  const w = num(i.weightOtz ?? i.weight);
+  const p = num(i.pricePaidPerUnitUsd ?? i.price);
+  const q = num(i.quantity ?? 1, 1);
+  return sum + w * p * q;
+}, 0);
+
     /* For testing
     const totalWeight = calculateTotalWeight(stack);
     const totalValue = calculateTotalValue(stack);*/
@@ -50,11 +65,16 @@ function Home({ stack, onAdd }) {
                 <div className="summary-cards">
                     <div className="card">
                         <h3>Total Weight</h3>
-                        <p>{totalWeight.toFixed(2)} otz</p>
+                        <p>
+  {totalWeight.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })} otz
+</p>
                     </div>
                     <div className="card">
                         <h3>Total Value</h3>
-                        <p>${totalValue.toFixed(2)}</p>
+                        <p>${totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                     </div>
                 </div>
 

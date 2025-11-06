@@ -1,7 +1,7 @@
 import "./StackerTracker.css";
 import { useState } from "react";
 
-// ----- helpers -----
+// ---------- helpers ----------
 const fmtMoney = (n) => {
   if (n == null || n === "" || Number.isNaN(Number(n))) return "—";
   return Number(n).toLocaleString(undefined, {
@@ -10,6 +10,7 @@ const fmtMoney = (n) => {
   });
 };
 
+// Parse "YYYY-MM-DD" as a local date (prevents timezone shift)
 const parseLocalYMD = (s) => {
   if (typeof s !== "string") return null;
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s);
@@ -17,28 +18,20 @@ const parseLocalYMD = (s) => {
   const y = Number(m[1]);
   const mo = Number(m[2]) - 1;
   const d = Number(m[3]);
-  return new Date(y, mo, d); 
+  return new Date(y, mo, d);
 };
 
-
+// Prefer purchasedOn, fallback to date; return a Date or null
 const getDisplayDate = (item) => {
   const raw = item?.purchasedOn ?? item?.date ?? null;
-  
   const local = parseLocalYMD(raw);
   if (local) return local;
-  if (raw) {
-    const d = new Date(raw);
-    return Number.isNaN(d.getTime()) ? null : d;
-  }
-  return null;
+  if (!raw) return null;
+  const d = new Date(raw);
+  return Number.isNaN(d.getTime()) ? null : d;
 };
 
-const dateForDisplay = (raw) => {
-  const d = parseLocalYMD(raw) ?? (raw ? new Date(raw) : null);
-  return d && !Number.isNaN(d.getTime()) ? d.toLocaleDateString() : "—";
-};
-
-
+// Convert stored value into <input type="date"> value
 const dateForInput = (raw) => {
   if (typeof raw === "string" && /^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
   const d = raw ? new Date(raw) : null;
@@ -49,7 +42,7 @@ const dateForInput = (raw) => {
   return `${yyyy}-${mm}-${dd}`;
 };
 
-// ----- component -----
+// ---------- component ----------
 function StackerTracker({
   stack,
   onDelete,
@@ -59,9 +52,17 @@ function StackerTracker({
   onUpdate,
 }) {
   const [sortBy, setSortBy] = useState("date");
-  const recentItems = [...stack].slice(-3).reverse();
 
-  // Sorting
+  // 3 most recent by date
+  const recentItems = [...stack]
+    .sort(
+      (a, b) =>
+        (getDisplayDate(b)?.getTime() ?? 0) -
+        (getDisplayDate(a)?.getTime() ?? 0)
+    )
+    .slice(0, 3);
+
+  // Sort table
   const sortedStack = [...stack].sort((a, b) => {
     if (sortBy === "date") {
       return (
@@ -87,22 +88,18 @@ function StackerTracker({
           ? String(editingItem.metal).trim().toUpperCase()
           : undefined,
       weightOtz:
-        editingItem.weightOtz != null
-          ? Number(editingItem.weightOtz)
-          : undefined,
+        editingItem.weightOtz != null ? Number(editingItem.weightOtz) : undefined,
       pricePaidPerUnitUsd:
         editingItem.pricePaidPerUnitUsd != null
           ? Number(editingItem.pricePaidPerUnitUsd)
           : undefined,
+      quantity:
+        editingItem.quantity != null ? Number(editingItem.quantity) : undefined,
       purchasedOn:
         editingItem.purchasedOn != null ? editingItem.purchasedOn : undefined,
       notes: editingItem.notes,
     });
     setEditingItem(null);
-  };
-
-  const handleDelete = async (id) => {
-    await onDelete?.(id);
   };
 
   return (
@@ -117,17 +114,17 @@ function StackerTracker({
           <div className="recent-cards">
             {recentItems.map((item) => (
               <div className="card" key={item.id}>
-                <h3>{item.metal || "—"}</h3>
+                <h3>{item.metal}</h3>
                 <p>
-                  <strong>Weight:</strong>{" "}
-                  {item.weightOtz != null ? item.weightOtz : "—"} oz
+                  <strong>Weight:</strong> {item.weightOtz ?? "—"} oz
                 </p>
                 <p>
                   <strong>Price:</strong> ${fmtMoney(item.pricePaidPerUnitUsd)}
                 </p>
                 <p>
-                 <strong>Date:</strong> {dateForDisplay(item.purchasedOn ?? item.date)}
-                 </p>
+                  <strong>Date:</strong>{" "}
+                  {(getDisplayDate(item) || new Date()).toLocaleDateString()}
+                </p>
               </div>
             ))}
           </div>
@@ -181,7 +178,7 @@ function StackerTracker({
                             }
                           />
                         ) : (
-                          item.metal || "—"
+                          item.metal
                         )}
                       </td>
 
@@ -194,14 +191,12 @@ function StackerTracker({
                             onChange={(e) =>
                               setEditingItem({
                                 ...editingItem,
-                                weightOtz: e.target.value, // <-- correct key
+                                weightOtz: e.target.value,
                               })
                             }
                           />
-                        ) : item.weightOtz == null ? (
-                          "—"
                         ) : (
-                          item.weightOtz
+                          item.weightOtz ?? "—"
                         )}
                       </td>
 
@@ -214,7 +209,7 @@ function StackerTracker({
                             onChange={(e) =>
                               setEditingItem({
                                 ...editingItem,
-                                pricePaidPerUnitUsd: e.target.value, // <-- correct key
+                                pricePaidPerUnitUsd: e.target.value,
                               })
                             }
                           />
@@ -227,11 +222,13 @@ function StackerTracker({
                         {isEditing ? (
                           <input
                             type="date"
-                            value={dateForInput(editingItem?.purchasedOn ?? editingItem?.date)}
+                            value={dateForInput(
+                              editingItem?.purchasedOn ?? editingItem?.date
+                            )}
                             onChange={(e) =>
                               setEditingItem({
                                 ...editingItem,
-                                purchasedOn: e.target.value, // <-- correct key
+                                purchasedOn: e.target.value,
                               })
                             }
                           />
@@ -245,10 +242,7 @@ function StackerTracker({
                       <td>
                         {isEditing ? (
                           <>
-                            <button
-                              className="update-button"
-                              onClick={handleSave}
-                            >
+                            <button className="update-button" onClick={handleSave}>
                               Save
                             </button>
                             <button
@@ -288,4 +282,3 @@ function StackerTracker({
 }
 
 export default StackerTracker;
-

@@ -1,10 +1,10 @@
-// API base with optional env override 
+// API base with optional env override
 const API_BASE = (import.meta?.env?.VITE_API_URL || "http://localhost:8080/api").replace(/\/+$/, "");
 
-// TODO: remove later when backend reads user from token
+// TODO: remove when backend reads userId from JWT
 const USER_ID = 1;
 
-// helpers
+// ---------- helpers ----------
 function getAuthHeaders(contentTypeJson = true) {
   const token = localStorage.getItem("token");
   const headers = contentTypeJson ? { "Content-Type": "application/json" } : {};
@@ -23,8 +23,6 @@ const normalize = (it) => ({
 });
 
 // ---------- CRUD: /user-stack ----------
-
-// GET (list by user)
 export async function fetchUserStack() {
   const res = await fetch(`${API_BASE}/user-stack?userId=${USER_ID}`, {
     method: "GET",
@@ -35,7 +33,6 @@ export async function fetchUserStack() {
   return Array.isArray(raw) ? raw.map(normalize) : [];
 }
 
-// POST
 export async function addStackItem({
   metal,
   weightOtz,
@@ -50,7 +47,7 @@ export async function addStackItem({
     weightOtz: Number(weightOtz),
     quantity: Number(quantity),
     pricePaidPerUnitUsd: Number(pricePaidPerUnitUsd),
-    purchasedOn: purchasedOn || null, 
+    purchasedOn: purchasedOn || null, // "YYYY-MM-DD" (LocalDate on backend)
     notes: notes ?? null,
   };
 
@@ -66,7 +63,6 @@ export async function addStackItem({
   return normalize(await res.json());
 }
 
-// PUT
 export async function updateStackItem(
   id,
   { metal, weightOtz, pricePaidPerUnitUsd, purchasedOn, quantity, notes }
@@ -83,7 +79,7 @@ export async function updateStackItem(
   const q = toNum(quantity);
   if (q !== undefined) body.quantity = q;
 
-  if (purchasedOn !== undefined) body.purchasedOn = purchasedOn || null; // "YYYY-MM-DD" or null
+  if (purchasedOn !== undefined) body.purchasedOn = purchasedOn || null; // "YYYY-MM-DD"
   if (notes !== undefined) body.notes = notes;
 
   const res = await fetch(`${API_BASE}/user-stack/${id}`, {
@@ -98,12 +94,12 @@ export async function updateStackItem(
   return normalize(await res.json());
 }
 
-// DELETE
 export async function deleteStackItem(id) {
   const res = await fetch(`${API_BASE}/user-stack/${id}`, {
     method: "DELETE",
     headers: getAuthHeaders(false),
   });
-  if (!res.ok && res.status !== 204) throw new Error(`DELETE failed (${res.status})`);
+  if (!res.ok && res.status !== 204)
+    throw new Error(`DELETE failed (${res.status})`);
   return true;
 }
