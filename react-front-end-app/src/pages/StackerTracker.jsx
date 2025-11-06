@@ -53,7 +53,7 @@ function StackerTracker({
 }) {
   const [sortBy, setSortBy] = useState("date");
 
-  // 3 most recent by date
+  // 3 most recent by date (DESC)
   const recentItems = [...stack]
     .sort(
       (a, b) =>
