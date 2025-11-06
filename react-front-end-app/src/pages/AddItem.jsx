@@ -20,7 +20,7 @@ function AddItem({ onAdd }) {
     metal,
     weight: Number(weight),                
     price: Number(price),                  
-    date: new Date(date).toISOString().slice(0, 10), 
+    date, 
   };
 
   console.log("AddItem -> onAdd payload", newItem);

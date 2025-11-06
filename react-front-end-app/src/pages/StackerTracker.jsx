@@ -1,8 +1,55 @@
 import "./StackerTracker.css";
 import { useState } from "react";
-// import { mockStacks } from '../utils/mockData';
 
-// StackerTracker.jsx - Page to display, edit, and delete stack items
+// ----- helpers -----
+const fmtMoney = (n) => {
+  if (n == null || n === "" || Number.isNaN(Number(n))) return "—";
+  return Number(n).toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};
+
+const parseLocalYMD = (s) => {
+  if (typeof s !== "string") return null;
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s);
+  if (!m) return null;
+  const y = Number(m[1]);
+  const mo = Number(m[2]) - 1;
+  const d = Number(m[3]);
+  return new Date(y, mo, d); 
+};
+
+
+const getDisplayDate = (item) => {
+  const raw = item?.purchasedOn ?? item?.date ?? null;
+  
+  const local = parseLocalYMD(raw);
+  if (local) return local;
+  if (raw) {
+    const d = new Date(raw);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+  return null;
+};
+
+const dateForDisplay = (raw) => {
+  const d = parseLocalYMD(raw) ?? (raw ? new Date(raw) : null);
+  return d && !Number.isNaN(d.getTime()) ? d.toLocaleDateString() : "—";
+};
+
+
+const dateForInput = (raw) => {
+  if (typeof raw === "string" && /^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+  const d = raw ? new Date(raw) : null;
+  if (!d || Number.isNaN(d.getTime())) return "";
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+};
+
+// ----- component -----
 function StackerTracker({
   stack,
   onDelete,
@@ -11,37 +58,27 @@ function StackerTracker({
   setEditingItem,
   onUpdate,
 }) {
-  /* const useMockData = true; //set to false after testing
- 
-
-useEffect(() => {
-  if (useMockData) {
-    // Simulate API delay
-    setTimeout(() => {
-      onUpdate(mockStacks); // Load mock data into parent state
-    }, 400);
-  }
-}, [useMockData]); */
-
   const [sortBy, setSortBy] = useState("date");
   const recentItems = [...stack].slice(-3).reverse();
-  const [sortBy, setSortBy] = useState("date");
 
-  // Sort logic
+  // Sorting
   const sortedStack = [...stack].sort((a, b) => {
     if (sortBy === "date") {
-      return new Date(b.date) - new Date(a.date);
+      return (
+        (getDisplayDate(b)?.getTime() ?? 0) -
+        (getDisplayDate(a)?.getTime() ?? 0)
+      );
     } else if (sortBy === "weight") {
-      return b.weight - a.weight;
+      return (b.weightOtz ?? 0) - (a.weightOtz ?? 0);
     } else if (sortBy === "metal") {
-      return a.metal.localeCompare(b.metal);
+      return (a.metal ?? "").localeCompare(b.metal ?? "");
     } else if (sortBy === "price") {
-      return b.price - a.price;
+      return (b.pricePaidPerUnitUsd ?? 0) - (a.pricePaidPerUnitUsd ?? 0);
     }
     return 0;
   });
 
-   const handleSave = async () => {
+  const handleSave = async () => {
     if (!editingItem?.id) return;
     await onUpdate({
       id: editingItem.id,
@@ -57,8 +94,6 @@ useEffect(() => {
         editingItem.pricePaidPerUnitUsd != null
           ? Number(editingItem.pricePaidPerUnitUsd)
           : undefined,
-      quantity:
-        editingItem.quantity != null ? Number(editingItem.quantity) : undefined,
       purchasedOn:
         editingItem.purchasedOn != null ? editingItem.purchasedOn : undefined,
       notes: editingItem.notes,
@@ -66,8 +101,8 @@ useEffect(() => {
     setEditingItem(null);
   };
 
-   const handleDelete = async (id) => {
-    await onDelete(id);
+  const handleDelete = async (id) => {
+    await onDelete?.(id);
   };
 
   return (
@@ -78,24 +113,26 @@ useEffect(() => {
         <p className="empty-message">Your stack is currently empty.</p>
       ) : (
         <>
+          {/* Recent cards */}
           <div className="recent-cards">
             {recentItems.map((item) => (
               <div className="card" key={item.id}>
-                <h3>{item.metal}</h3>
+                <h3>{item.metal || "—"}</h3>
                 <p>
-                  <strong>Weight:</strong> {item.weight} oz
+                  <strong>Weight:</strong>{" "}
+                  {item.weightOtz != null ? item.weightOtz : "—"} oz
                 </p>
                 <p>
-                  <strong>Price:</strong> ${item.price}
+                  <strong>Price:</strong> ${fmtMoney(item.pricePaidPerUnitUsd)}
                 </p>
                 <p>
-                  <strong>Date:</strong>{" "}
-                  {new Date(item.date).toLocaleDateString()}
-                </p>
+                 <strong>Date:</strong> {dateForDisplay(item.purchasedOn ?? item.date)}
+                 </p>
               </div>
             ))}
           </div>
 
+          {/* Controls */}
           <div className="controls">
             <label>
               Sort by:{" "}
@@ -111,6 +148,7 @@ useEffect(() => {
             </label>
           </div>
 
+          {/* Table */}
           <div className="stack-table-wrapper">
             <table className="stack-table">
               <thead>
@@ -143,7 +181,7 @@ useEffect(() => {
                             }
                           />
                         ) : (
-                          item.metal
+                          item.metal || "—"
                         )}
                       </td>
 
@@ -156,7 +194,7 @@ useEffect(() => {
                             onChange={(e) =>
                               setEditingItem({
                                 ...editingItem,
-                                weight: e.target.value,
+                                weightOtz: e.target.value, // <-- correct key
                               })
                             }
                           />
@@ -176,7 +214,7 @@ useEffect(() => {
                             onChange={(e) =>
                               setEditingItem({
                                 ...editingItem,
-                                price: e.target.value,
+                                pricePaidPerUnitUsd: e.target.value, // <-- correct key
                               })
                             }
                           />
@@ -189,18 +227,18 @@ useEffect(() => {
                         {isEditing ? (
                           <input
                             type="date"
-                            value={(editingItem?.date || "").slice(0, 10)}
+                            value={dateForInput(editingItem?.purchasedOn ?? editingItem?.date)}
                             onChange={(e) =>
                               setEditingItem({
                                 ...editingItem,
-                                date: e.target.value,
+                                purchasedOn: e.target.value, // <-- correct key
                               })
                             }
                           />
                         ) : d ? (
                           d.toLocaleDateString()
                         ) : (
-                          new Date(item.date).toLocaleDateString()
+                          "—"
                         )}
                       </td>
 
@@ -250,3 +288,4 @@ useEffect(() => {
 }
 
 export default StackerTracker;
+
