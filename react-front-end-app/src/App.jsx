@@ -12,7 +12,14 @@ import FindCoinShops from './pages/FindCoinShops';
 import SpotTracker from './pages/SpotTracker';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ProtectedRoute from './components/ProtectedRoute';
 import { fetchUserStack, addStackItem, updateStackItem, deleteStackItem } from './services/stackService';
+
+
+function isLoggedIn() {
+  const t = localStorage.getItem('token');
+  return !!t && t !== 'undefined' && t !== 'null';
+}
 
 function App() {
   // State for the stack inventory
@@ -27,12 +34,14 @@ const refresh = async () => {
   setStack(data);
 };
 
-// Load stack from backend when app loads
+// Load stack from backend only when user is logged in
   useEffect(() => {
     (async () => {
       try {
         setLoading(true);
-        await refresh();
+        if (isLoggedIn()) {
+          await refresh();
+        }
         setError(null);
       } catch (err) {
         console.error(err);
@@ -76,7 +85,7 @@ const refresh = async () => {
   const handleEditItem = (item) => {
     setEditingItem(item);
   };
-
+  
   const handleUpdateItem = async ({ id, ...body }) => {
     try {
       await updateStackItem(id, body);
@@ -97,26 +106,37 @@ const refresh = async () => {
 
         <main className="content">
           {loading ? (
-            <p style={{ padding: '1rem' }}>Loading your stack...</p>
-          ) : error ? (
+            <p style={{ padding: '1rem' }}>Loading…</p>
+          ) : error && isLoggedIn() ? (
             <p style={{ padding: '1rem', color: 'red' }}>{error}</p>
           ) : (
             <Routes>
-             <Route path="/" element={<Home stack={stack} onAdd={handleAddItem} />} />
-             <Route path="/add" element={<AddItem onAdd={handleAddItem} />} />
-             <Route path="/stack" element={<StackerTracker
-              stack={stack}
-              onDelete={handleDeleteItem}
-              onEdit={handleEditItem}
-              editingItem={editingItem}
-              setEditingItem={setEditingItem}
-              onUpdate={handleUpdateItem} />} />
-             <Route path="/find-shops" element={<FindCoinShops />} />
-             <Route path="/spot-tracker" element={<SpotTracker />} />
-             <Route path="/about" element={<About />} />
-             <Route path="/login" element={<Login />} />
-             <Route path="/register" element={<Register />} />
-          </Routes>
+              {/* Public routes */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+
+             {/* Protected routes */}
+              <Route element={<ProtectedRoute />}>
+                <Route path="/" element={<Home stack={stack} onAdd={handleAddItem} />} />
+                <Route path="/add" element={<AddItem onAdd={handleAddItem} />} />
+                <Route
+                  path="/stack"
+                  element={
+                    <StackerTracker
+                      stack={stack}
+                      onDelete={handleDeleteItem}
+                      onEdit={handleEditItem}
+                      editingItem={editingItem}
+                      setEditingItem={setEditingItem}
+                      onUpdate={handleUpdateItem}
+                    />
+                  }
+                />
+                <Route path="/find-shops" element={<FindCoinShops />} />
+                <Route path="/spot-tracker" element={<SpotTracker />} />
+                <Route path="/about" element={<About />} />
+              </Route>
+            </Routes>
         )}
         </main>
       </div>
