@@ -1,5 +1,5 @@
 import "./StackerTracker.css";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 // ----- helpers -----
 const fmtMoney = (n) => {
@@ -59,7 +59,15 @@ function StackerTracker({
   onUpdate,
 }) {
   const [sortBy, setSortBy] = useState("date");
-  const recentItems = [...stack].slice(-3).reverse();
+  const recentItems = useMemo(() => {
+   return [...stack]
+     .sort(
+       (a, b) =>
+         (getDisplayDate(b)?.getTime() ?? 0) -
+         (getDisplayDate(a)?.getTime() ?? 0)
+     )
+     .slice(0, 3);
+}, [stack]);
 
   // Sorting
   const sortedStack = [...stack].sort((a, b) => {
