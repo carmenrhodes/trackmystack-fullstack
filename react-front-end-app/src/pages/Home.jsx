@@ -15,17 +15,17 @@ function Home({ stack, onAdd }) {
   return Number.isFinite(n) ? n : fallback;
 };
 
-const totalWeight = (stack ?? []).reduce(
-  (sum, i) => sum + num(i.weightOtz ?? i.weight),
+const totalWeight = (stack ?? []).reduce((sum, i) => {
+  const w = num(i.weightOtz ?? i.weight);
+  const q = num(i.quantity ?? 1, 1);
+  return sum + w * q;
+}, 0);
+
+
+  const totalValue = (stack ?? []).reduce(
+  (sum, i) => sum + num(i?.totalPaidUsd ?? price),
   0
 );
-
-const totalValue = (stack ?? []).reduce((sum, i) => {
-  const w = num(i.weightOtz ?? i.weight);
-  const p = num(i.pricePaidPerUnitUsd ?? i.price);
-  const q = num(i.quantity ?? 1, 1);
-  return sum + w * p * q;
-}, 0);
 
     /* For testing
     const totalWeight = calculateTotalWeight(stack);

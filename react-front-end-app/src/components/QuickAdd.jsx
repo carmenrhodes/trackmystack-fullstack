@@ -6,23 +6,31 @@ import "./QuickAdd.css";
 function QuickAdd({ onAdd }) {
     const [metal, setMetal] = useState("");
     const [weight, setWeight] = useState("");
-    const [price, setPrice] = useState("");
+    const [totalPaid, setTotalPaid] = useState("");
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (!metal || !weight || !price) return;
+        if (!metal || !weight || !totalPaid) return;
+
+        const today = new Date();
+        const purchasedOn = `${today.getFullYear()}-${String(
+          today.getMonth() + 1
+        ).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
+        const w = Number(weight);
+        const t = Number(totalPaid);
+        if (!Number.isFinite(w) || !Number.isFinite(t)) return;
 
         onAdd({
-            id: Date.now(),
-            metal,
-            weight: Number(weight),
-            price: Number(price),
-            date: new Date().toISOString().slice(0, 10),
+        metal: String(metal).trim().toUpperCase(),
+        weightOtz: Number(weight),
+        totalPaidUsd: Number(totalPaid),
+         purchasedOn,
         });
 
         setMetal("");
         setWeight("");
-        setPrice("");
+        setTotalPaid("");
     };
 
     return (
@@ -39,16 +47,20 @@ function QuickAdd({ onAdd }) {
 
             <input
                 type="number"
-                placeholder="Weight (oz)"
+                placeholder="Weight (otz)"
                 value={weight}
                 onChange={(e) => setWeight(e.target.value)}
+                min="0"
+                step="0.0001"
             />
 
             <input
                 type="number"
-                placeholder="Price ($)"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
+                placeholder="Total Paid ($)"
+                value={totalPaid}
+                onChange={(e) => setTotalPaid(e.target.value)}
+                min="0"
+                step="0.01"
             />
 
             <button type="submit">Add</button>

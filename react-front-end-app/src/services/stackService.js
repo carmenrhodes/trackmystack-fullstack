@@ -11,13 +11,14 @@ function getAuthHeaders(contentTypeJson = true) {
   if (token) headers["Authorization"] = `Bearer ${token}`;
   return headers;
 }
+
 const toNum = (v) => (v === "" || v == null ? undefined : Number(v));
 
 const normalize = (it) => ({
   id: it.id ?? it._id ?? it.uuid,
   metal: String(it.metal ?? "").toUpperCase(),
   weightOtz: it.weightOtz ?? it.weight ?? null,
-  pricePaidPerUnitUsd: it.pricePaidPerUnitUsd ?? it.price ?? null,
+  totalPaidUsd: it.totalPaidUsd ?? it.price ?? null,
   purchasedOn: it.purchasedOn ?? it.date ?? null,
   notes: it.notes ?? null,
 });
@@ -36,7 +37,7 @@ export async function fetchUserStack() {
 export async function addStackItem({
   metal,
   weightOtz,
-  pricePaidPerUnitUsd,
+  totalPaidUsd,
   purchasedOn,
   quantity = 1,
   notes = null,
@@ -46,8 +47,8 @@ export async function addStackItem({
     metal: String(metal || "").trim().toUpperCase(),
     weightOtz: Number(weightOtz),
     quantity: Number(quantity),
-    pricePaidPerUnitUsd: Number(pricePaidPerUnitUsd),
-    purchasedOn: purchasedOn || null, // "YYYY-MM-DD" (LocalDate on backend)
+    totalPaidUsd: Number(totalPaidUsd),  // <— IMPORTANT
+    purchasedOn: purchasedOn || null,    // "YYYY-MM-DD"
     notes: notes ?? null,
   };
 
@@ -65,7 +66,7 @@ export async function addStackItem({
 
 export async function updateStackItem(
   id,
-  { metal, weightOtz, pricePaidPerUnitUsd, purchasedOn, quantity, notes }
+  { metal, weightOtz, totalPaidUsd, purchasedOn, quantity, notes }
 ) {
   const body = {};
   if (metal !== undefined) body.metal = String(metal).trim().toUpperCase();
@@ -73,13 +74,13 @@ export async function updateStackItem(
   const w = toNum(weightOtz);
   if (w !== undefined) body.weightOtz = w;
 
-  const p = toNum(pricePaidPerUnitUsd);
-  if (p !== undefined) body.pricePaidPerUnitUsd = p;
+  const p = toNum(totalPaidUsd);
+  if (p !== undefined) body.totalPaidUsd = p;  // <— IMPORTANT
 
   const q = toNum(quantity);
   if (q !== undefined) body.quantity = q;
 
-  if (purchasedOn !== undefined) body.purchasedOn = purchasedOn || null; // "YYYY-MM-DD"
+  if (purchasedOn !== undefined) body.purchasedOn = purchasedOn || null;
   if (notes !== undefined) body.notes = notes;
 
   const res = await fetch(`${API_BASE}/user-stack/${id}`, {

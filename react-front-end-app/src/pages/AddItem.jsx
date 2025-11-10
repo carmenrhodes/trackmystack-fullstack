@@ -5,22 +5,22 @@ import "./AddItem.css";
 function AddItem({ onAdd }) {
   const [metal, setMetal] = useState("");
   const [weight, setWeight] = useState("");
-  const [price, setPrice] = useState("");
+  const [totalPaid, setTotalPaid] = useState("");
   const [date, setDate] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
     // Validates input and adds item to stack
-    if (!metal || !weight || !price || !date) {
+    if (!metal || !weight || !totalPaid || !date) {
       alert("Please fill in all fields.");
       return;
     }
 
     const newItem = {
     metal,
-    weight: Number(weight),                
-    price: Number(price),                  
-    date, 
+    weightOtz: Number(weight),                
+    totalPaidUsd: Number(totalPaid),                  
+    purchasedOn: date, 
   };
 
   console.log("AddItem -> onAdd payload", newItem);
@@ -29,7 +29,7 @@ function AddItem({ onAdd }) {
 
   setMetal("");
   setWeight("");
-  setPrice("");
+  setTotalPaid("");
   setDate("");
 };
 
@@ -45,26 +45,30 @@ function AddItem({ onAdd }) {
               type="text"
               value={metal}
               onChange={(e) => setMetal(e.target.value)}
+              placeholder="GOLD, SILVER, etc."
             />
           </label>
 
           <label>
-            Weight (oz):
+            Weight (otz):
             <input
               type="number"
+              step="0.0001"
               value={weight}
               onChange={(e) => setWeight(e.target.value)}
             />
           </label>
 
           <label>
-            Purchase Price:
-            <input
-              type="number"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-            />
-          </label>
+  Total Price Paid (USD):
+  <input
+    type="number"
+    step="0.01"
+    value={totalPaid}
+    onChange={(e) => setTotalPaid(e.target.value)}
+  />
+</label>
+
 
           <label>
             Date:
@@ -81,8 +85,8 @@ function AddItem({ onAdd }) {
         <div className="preview-card">
           <h3>Live Preview</h3>
           <p><strong>Metal:</strong> {metal || "—"}</p>
-          <p><strong>Weight (oz):</strong> {weight || "—"}</p>
-          <p><strong>Purchase Price:</strong> {price || "—"}</p>
+          <p><strong>Weight (otz):</strong> {weight || "—"}</p>
+          <p><strong>Purchase Price:</strong> {totalPaid || "—"}</p>
           <p><strong>Date:</strong> {date || "—"}</p>
         </div>
       </div>

@@ -52,23 +52,24 @@ const refresh = async () => {
     })();
   }, []);
 
-   // Add a new stack item (POST to backend)
-  const handleAddItem = async ({metal, weight, price, date}) => {
-    try {
-      await addStackItem({
-        metal,
-        weightOtz: Number(weight),
-        pricePaidPerUnitUsd: Number(price),
-        purchasedOn: date,
-        quantity: 1,
-        notes: null,
-      });
-      await refresh();
-    } catch (err) {
-      console.error(err);
-      alert("Couldn't save item to backend");
-    }
-  };
+ // Add a new stack item (POST to backend)
+const handleAddItem = async ({ metal, weightOtz, totalPaidUsd, purchasedOn }) => {
+  try {
+    await addStackItem({
+      metal,
+      weightOtz: Number(weightOtz),
+      totalPaidUsd: Number(totalPaidUsd),
+      purchasedOn,          // "YYYY-MM-DD"
+      quantity: 1,
+      notes: null,
+    });
+    await refresh();
+  } catch (err) {
+    console.error(err);
+    alert("Couldn't save item to backend");
+  }
+};
+
 
   // Function to delete an item from the stack
   const handleDeleteItem = async (id) => {
