@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -28,11 +28,16 @@ function App() {
   const [editingItem, setEditingItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  const [loggedIn, setLoggedIn] = useState(isLoggedIn());
 
 const refresh = async () => {
   const data = await fetchUserStack();
   setStack(data);
 };
+
+const location = useLocation();
+const onAuthPage = location.pathname === '/login' || location.pathname === '/register';
 
 // Load stack from backend only when user is logged in
   useEffect(() => {
@@ -51,6 +56,12 @@ const refresh = async () => {
       }
     })();
   }, []);
+
+ useEffect(() => {
+    if (loggedIn) {
+      refresh().catch(console.error);
+    }
+  }, [loggedIn]);
 
  // Add a new stack item (POST to backend)
 const handleAddItem = async ({ metal, weightOtz, totalPaidUsd, purchasedOn }) => {
@@ -103,7 +114,9 @@ const handleAddItem = async ({ metal, weightOtz, totalPaidUsd, purchasedOn }) =>
       <Header menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
 
       <div className="content">
-        <Sidebar menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
+        {!onAuthPage && (
+  <Sidebar menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
+)}
 
         <main className="content">
           {loading ? (
@@ -113,7 +126,7 @@ const handleAddItem = async ({ metal, weightOtz, totalPaidUsd, purchasedOn }) =>
           ) : (
             <Routes>
               {/* Public routes */}
-              <Route path="/login" element={<Login />} />
+              <Route path="/login" element={<Login onLogin={() => setLoggedIn(true)} />} />
               <Route path="/register" element={<Register />} />
 
              {/* Protected routes */}

@@ -40,17 +40,37 @@ function StackerTracker({ stack, onDelete, onEdit, editingItem, setEditingItem, 
     .slice(0, 3);
 
   // table sort
-  const sortedStack = [...stack].sort((a, b) => {
-    if (sortBy === "date")
-      return (getDisplayDate(b)?.getTime() ?? 0) - (getDisplayDate(a)?.getTime() ?? 0);
-    if (sortBy === "weight")
-      return (b.weightOtz ?? 0) - (a.weightOtz ?? 0);
-    if (sortBy === "metal")
-      return (a.metal ?? "").localeCompare(b.metal ?? "");
-    if (sortBy === "price")
-      return (Number(b.totalPaidUsd) || 0) - (Number(a.totalPaidUsd) || 0);
-    return 0;
-  });
+ const dateKey = (it) => getDisplayDate(it)?.getTime() ?? 0;
+
+const sortedStack = [...stack].sort((a, b) => {
+  if (sortBy === "date") {
+    // Newest first
+    return dateKey(b) - dateKey(a);
+  }
+
+  if (sortBy === "weight") {
+    // Heaviest first; tie-break by newest date
+    const cmp = (b.weightOtz ?? 0) - (a.weightOtz ?? 0);
+    return cmp !== 0 ? cmp : dateKey(b) - dateKey(a);
+  }
+
+  if (sortBy === "metal") {
+    // A–Z by metal; tie-break by newest date
+    const am = (a.metal ?? "").toUpperCase();
+    const bm = (b.metal ?? "").toUpperCase();
+    const cmp = am.localeCompare(bm);
+    return cmp !== 0 ? cmp : dateKey(b) - dateKey(a);
+  }
+
+  if (sortBy === "price") {
+    // Highest total paid first; tie-break by newest date
+    const cmp = (Number(b.totalPaidUsd) || 0) - (Number(a.totalPaidUsd) || 0);
+    return cmp !== 0 ? cmp : dateKey(b) - dateKey(a);
+  }
+
+  return 0;
+});
+
 
   const handleSave = async () => {
     if (!editingItem?.id) return;
