@@ -32,8 +32,8 @@ public class UserStack {
     @Column(nullable = false)
     private Integer quantity;
 
-    @Column(name = "price_paid_per_unit_usd", precision = 12, scale = 2)
-    private BigDecimal pricePaidPerUnitUsd;
+    @Column(name = "total_paid_usd")
+    private BigDecimal totalPaidUsd;
 
     @Column( name = "purchased_on" )
     private LocalDate purchasedOn;

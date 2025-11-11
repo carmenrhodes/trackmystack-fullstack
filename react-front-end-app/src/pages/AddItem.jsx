@@ -17,7 +17,7 @@ function AddItem({ onAdd }) {
     }
 
     const newItem = {
-    metal,
+    metal: String(metal).trim().toUpperCase(),
     weightOtz: Number(weight),                
     totalPaidUsd: Number(totalPaid),                  
     purchasedOn: date, 
@@ -54,6 +54,7 @@ function AddItem({ onAdd }) {
             <input
               type="number"
               step="0.0001"
+              min="0"
               value={weight}
               onChange={(e) => setWeight(e.target.value)}
             />
@@ -64,6 +65,7 @@ function AddItem({ onAdd }) {
   <input
     type="number"
     step="0.01"
+    min="0"
     value={totalPaid}
     onChange={(e) => setTotalPaid(e.target.value)}
   />
