@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { login, isLoggedIn } from "../services/authService";
 
-export default function Login() {
+export default function Login({ onLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -25,6 +25,7 @@ export default function Login() {
     setSubmitting(true);
     try {
       await login({ email, password });
+      onLogin?.();    
       navigate(from, { replace: true });
     } catch (err) {
       console.error(err);

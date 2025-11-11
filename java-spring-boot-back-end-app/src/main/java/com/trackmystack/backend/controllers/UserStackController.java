@@ -47,7 +47,7 @@ public class UserStackController {
         us.setMetal(req.getMetal());
         us.setWeightOtz(req.getWeightOtz());
         us.setQuantity(req.getQuantity());
-        us.setPricePaidPerUnitUsd(req.getPricePaidPerUnitUsd());
+        us.setTotalPaidUsd(req.getTotalPaidUsd());
         us.setPurchasedOn(req.getPurchasedOn());
         us.setNotes(req.getNotes());
 
@@ -64,7 +64,7 @@ public class UserStackController {
         if (req.getMetal() != null) us.setMetal(req.getMetal());
         if (req.getWeightOtz() != null) us.setWeightOtz(req.getWeightOtz());
         if (req.getQuantity() != null) us.setQuantity(req.getQuantity());
-        if (req.getPricePaidPerUnitUsd() != null) us.setPricePaidPerUnitUsd(req.getPricePaidPerUnitUsd());
+        if (req.getTotalPaidUsd() != null) us.setTotalPaidUsd(req.getTotalPaidUsd());;
         if (req.getPurchasedOn() != null) us.setPurchasedOn(req.getPurchasedOn());
         if (req.getNotes() != null) us.setNotes(req.getNotes());
 
@@ -93,7 +93,7 @@ public class UserStackController {
         private Metal metal;
         private BigDecimal weightOtz;
         private Integer quantity;
-        private BigDecimal pricePaidPerUnitUsd;
+        private BigDecimal totalPaidUsd;
         private LocalDate purchasedOn;
         private String notes;
     }
@@ -103,7 +103,7 @@ public class UserStackController {
         private Metal metal;
         private BigDecimal weightOtz;
         private Integer quantity;
-        private BigDecimal pricePaidPerUnitUsd;
+        private BigDecimal totalPaidUsd;
         private LocalDate purchasedOn;
         private String notes;
     }
