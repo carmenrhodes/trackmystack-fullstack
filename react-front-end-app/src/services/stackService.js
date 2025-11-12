@@ -1,8 +1,6 @@
-// API base with optional env override
-const API_BASE = (import.meta?.env?.VITE_API_URL || "http://localhost:8080/api").replace(/\/+$/, "");
-
-// TODO: remove when backend reads userId from JWT
-const USER_ID = 1;
+const API_BASE = (
+  import.meta?.env?.VITE_API_URL || "http://localhost:8080/api"
+).replace(/\/+$/, "");
 
 // ---------- helpers ----------
 function getAuthHeaders(contentTypeJson = true) {
@@ -25,13 +23,21 @@ const normalize = (it) => ({
 
 // ---------- CRUD: /user-stack ----------
 export async function fetchUserStack() {
-  const res = await fetch(`${API_BASE}/user-stack?userId=${USER_ID}`, {
-    method: "GET",
-    headers: getAuthHeaders(false),
-  });
-  if (!res.ok) throw new Error(`Failed to load stack (${res.status})`);
-  const raw = await res.json();
-  return Array.isArray(raw) ? raw.map(normalize) : [];
+  const url = `${API_BASE}/user-stack`;
+  const headers = getAuthHeaders(false);
+
+  try {
+    const res = await fetch(url, { method: "GET", headers });
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      throw new Error(`Failed to load stack (${res.status}) ${text}`);
+    }
+    const raw = await res.json();
+    return Array.isArray(raw) ? raw.map(normalize) : [];
+  } catch (e) {
+    console.error("[fetchUserStack] Error:", e);
+    throw e;
+  }
 }
 
 export async function addStackItem({
@@ -43,12 +49,13 @@ export async function addStackItem({
   notes = null,
 }) {
   const payload = {
-    userId: USER_ID,
-    metal: String(metal || "").trim().toUpperCase(),
+    metal: String(metal || "")
+      .trim()
+      .toUpperCase(),
     weightOtz: Number(weightOtz),
     quantity: Number(quantity),
-    totalPaidUsd: Number(totalPaidUsd),  // <— IMPORTANT
-    purchasedOn: purchasedOn || null,    // "YYYY-MM-DD"
+    totalPaidUsd: Number(totalPaidUsd),
+    purchasedOn: purchasedOn || null,
     notes: notes ?? null,
   };
 
@@ -75,7 +82,7 @@ export async function updateStackItem(
   if (w !== undefined) body.weightOtz = w;
 
   const p = toNum(totalPaidUsd);
-  if (p !== undefined) body.totalPaidUsd = p;  // <— IMPORTANT
+  if (p !== undefined) body.totalPaidUsd = p;
 
   const q = toNum(quantity);
   if (q !== undefined) body.quantity = q;

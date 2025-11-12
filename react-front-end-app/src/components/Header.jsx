@@ -1,49 +1,42 @@
-import './Header.css';
-import { Sling as Hamburger } from 'hamburger-react';
+import "./Header.css";
+import { Sling as Hamburger } from "hamburger-react";
 import { FaLayerGroup } from "react-icons/fa";
 import { logout, isLoggedIn } from "../services/authService";
 
 function Header({ menuOpen, setMenuOpen }) {
-     const handleLogout = () => {
+  const handleLogout = () => {
     logout();
-    window.location.reload(); 
+    window.location.reload();
   };
-  
-  return (
-        <header className="header">
-            <div className="hamburger-wrapper">
-                <Hamburger
-                    toggled={menuOpen}
-                    toggle={setMenuOpen}
-                    size={24}
-                    direction="left"
-                    label="Toggle menu"
-                    color="#fff"
-                />
-            </div>
-            <h1>
-                TrackMyStack <FaLayerGroup />
-            </h1>
 
-            {isLoggedIn() && (
-        <button
-          onClick={handleLogout}
-          style={{
-            marginLeft: "auto",
-            background: "transparent",
-            color: "white",
-            border: "1px solid white",
-            borderRadius: "6px",
-            padding: "6px 12px",
-            cursor: "pointer",
-            fontWeight: "600",
-          }}
-        >
-          Logout
-        </button>
+  return (
+    <header className="header">
+      <div className="hamburger-wrapper">
+        <Hamburger
+          toggled={menuOpen}
+          toggle={setMenuOpen}
+          size={24}
+          direction="left"
+          label="Toggle menu"
+          color="#fff"
+        />
+      </div>
+
+      <h1 className="brand">
+        TrackMyStack <FaLayerGroup aria-hidden="true" />
+      </h1>
+
+      {isLoggedIn() ? (
+        <div className="logout-container">
+          <button className="logout-btn" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
+      ) : (
+        <div />
       )}
-        </header>
-    );
+    </header>
+  );
 }
 
 export default Header;

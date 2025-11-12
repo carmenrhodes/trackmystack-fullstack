@@ -28,21 +28,19 @@ public class AuthController {
     // POST /api/auth/register
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest req) {
-        if (userRepo.findByEmail(req.getEmail()).isPresent()) {
+        if (userRepo.findByEmail(req.getEmail().trim().toLowerCase()).isPresent()) {
             return ResponseEntity.badRequest().body("Email already in use");
         }
 
         User u = new User();
         u.setEmail(req.getEmail().trim().toLowerCase());
         u.setPasswordHash(passwordEncoder.encode(req.getPassword()));
+        u.setFullName(req.getFullName());                 // <— store full name
         u.setCreatedAt(Instant.now());
-        // (Optional) u.setRole("USER");
-
         userRepo.save(u);
 
-
         String token = jwtUtil.generateToken(u.getEmail());
-        return ResponseEntity.ok(new AuthResponse(token, u.getEmail()));
+        return ResponseEntity.ok(new AuthResponse(token, u.getEmail(), u.getFullName(), u.getId()));
     }
 
     // POST /api/auth/login
@@ -59,25 +57,49 @@ public class AuthController {
             return ResponseEntity.status(401).body("Invalid credentials");
         }
 
-        String token = jwtUtil.generateToken(req.getEmail().trim().toLowerCase());
-        return ResponseEntity.ok(new AuthResponse(token, req.getEmail().trim().toLowerCase()));
+        User u = userRepo.findByEmail(req.getEmail().trim().toLowerCase())
+                .orElse(null);
+        if (u == null) return ResponseEntity.status(401).body("Invalid credentials");
+
+        String token = jwtUtil.generateToken(u.getEmail());
+        return ResponseEntity.ok(new AuthResponse(token, u.getEmail(), u.getFullName(), u.getId()));
     }
 
+    // GET /api/auth/me — info from JWT
 
     @GetMapping("/me")
     public ResponseEntity<?> me(@RequestHeader(name="Authorization", required=false) String authHeader) {
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) return ResponseEntity.status(401).build();
-        String sub = jwtUtil.validateAndGetSubject(authHeader.substring(7));
-        return sub == null ? ResponseEntity.status(401).build() : ResponseEntity.ok(new MeResponse(sub));
+        try {
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(401).build();
+            }
+            String email = jwtUtil.validateAndGetSubject(authHeader.substring(7));
+            if (email == null) return ResponseEntity.status(401).build();
+
+            return userRepo.findByEmail(email)
+                    .map(u -> ResponseEntity.ok(new MeResponse(u.getId(), u.getEmail(), u.getFullName())))
+                    .orElse(ResponseEntity.status(401).build());
+        } catch (Exception e) {
+            return ResponseEntity.status(401).build();
+        }
     }
 
+
     // DTOs
-    @Data public static class RegisterRequest { private String email; private String password; }
+    @Data public static class RegisterRequest { private String fullName; private String email; private String password; }
     @Data public static class LoginRequest { private String email; private String password; }
 
     @Data public static class AuthResponse {
         private final String token;
         private final String email;
+        private final String fullName;
+        private final Long userId;
     }
-    @Data public static class MeResponse { private final String email; }
+
+    @Data public static class MeResponse {
+        private final Long userId;
+        private final String email;
+        private final String fullName;
+    }
 }
+

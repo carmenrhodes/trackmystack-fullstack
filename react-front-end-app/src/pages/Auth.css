@@ -1,0 +1,123 @@
+.auth-page {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: calc(100vh - 140px);
+  padding: 4rem 1rem;
+  background-color: #fff;
+  width: 100%;
+}
+
+.content .auth-page {
+  margin: 0 auto;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 600px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 2rem 2.5rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  text-align: left;
+}
+
+.auth-tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.tab {
+  flex: 1;
+  padding: 0.6rem;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 600;
+  background: #e5e7eb;
+  border: none;
+  cursor: pointer;
+}
+
+.tab.active {
+  background: #2f5061;
+  color: white;
+}
+
+.tab.link-tab {
+  text-decoration: none;
+  color: inherit;
+}
+
+.auth-title {
+  font-family: "Luckiest Guy", cursive;
+  font-size: 1.9rem;
+  color: #2f5061;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.auth-subtitle {
+  color: #555;
+  text-align: center;
+  margin-bottom: 1.8rem;
+}
+
+.auth-label {
+  display: block;
+  font-weight: 600;
+  margin-top: 1rem;
+}
+
+.auth-input {
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-family: "Poppins", sans-serif;
+}
+
+.auth-btn {
+  margin-top: 1.5rem;
+  width: 100%;
+  padding: 0.75rem;
+  background: #2f5061;
+  color: white;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.auth-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.auth-btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.auth-error {
+  color: red;
+  margin-top: 0.8rem;
+}
+
+.auth-footer-text {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.auth-footer-text a {
+  color: #2f5061;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-footer-text a:hover {
+  text-decoration: underline;
+}

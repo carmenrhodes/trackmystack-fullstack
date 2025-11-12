@@ -4,13 +4,18 @@ import { useState } from "react";
 // --- helpers ---
 const fmtMoney = (n) => {
   if (n == null || n === "" || Number.isNaN(Number(n))) return "—";
-  return Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return Number(n).toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 };
 const parseLocalYMD = (s) => {
   if (typeof s !== "string") return null;
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s);
   if (!m) return null;
-  const y = Number(m[1]), mo = Number(m[2]) - 1, d = Number(m[3]);
+  const y = Number(m[1]),
+    mo = Number(m[2]) - 1,
+    d = Number(m[3]);
   return new Date(y, mo, d);
 };
 const getDisplayDate = (item) => {
@@ -31,56 +36,77 @@ const dateForInput = (raw) => {
   return `${yyyy}-${mm}-${dd}`;
 };
 
-function StackerTracker({ stack, onDelete, onEdit, editingItem, setEditingItem, onUpdate }) {
+function StackerTracker({
+  stack,
+  onDelete,
+  onEdit,
+  editingItem,
+  setEditingItem,
+  onUpdate,
+}) {
   const [sortBy, setSortBy] = useState("date");
 
   // 3 most recent cards (by date desc)
   const recentItems = [...stack]
-    .sort((a, b) => (getDisplayDate(b)?.getTime() ?? 0) - (getDisplayDate(a)?.getTime() ?? 0))
+    .sort(
+      (a, b) =>
+        (getDisplayDate(b)?.getTime() ?? 0) -
+        (getDisplayDate(a)?.getTime() ?? 0)
+    )
     .slice(0, 3);
 
   // table sort
- const dateKey = (it) => getDisplayDate(it)?.getTime() ?? 0;
+  const dateKey = (it) => getDisplayDate(it)?.getTime() ?? 0;
 
-const sortedStack = [...stack].sort((a, b) => {
-  if (sortBy === "date") {
-    // Newest first
-    return dateKey(b) - dateKey(a);
-  }
+  const sortedStack = [...stack].sort((a, b) => {
+    if (sortBy === "date") {
+      // Newest first
+      return dateKey(b) - dateKey(a);
+    }
 
-  if (sortBy === "weight") {
-    // Heaviest first; tie-break by newest date
-    const cmp = (b.weightOtz ?? 0) - (a.weightOtz ?? 0);
-    return cmp !== 0 ? cmp : dateKey(b) - dateKey(a);
-  }
+    if (sortBy === "weight") {
+      // Heaviest first; tie-break by newest date
+      const cmp = (b.weightOtz ?? 0) - (a.weightOtz ?? 0);
+      return cmp !== 0 ? cmp : dateKey(b) - dateKey(a);
+    }
 
-  if (sortBy === "metal") {
-    // A–Z by metal; tie-break by newest date
-    const am = (a.metal ?? "").toUpperCase();
-    const bm = (b.metal ?? "").toUpperCase();
-    const cmp = am.localeCompare(bm);
-    return cmp !== 0 ? cmp : dateKey(b) - dateKey(a);
-  }
+    if (sortBy === "metal") {
+      // A–Z by metal; tie-break by newest date
+      const am = (a.metal ?? "").toUpperCase();
+      const bm = (b.metal ?? "").toUpperCase();
+      const cmp = am.localeCompare(bm);
+      return cmp !== 0 ? cmp : dateKey(b) - dateKey(a);
+    }
 
-  if (sortBy === "price") {
-    // Highest total paid first; tie-break by newest date
-    const cmp = (Number(b.totalPaidUsd) || 0) - (Number(a.totalPaidUsd) || 0);
-    return cmp !== 0 ? cmp : dateKey(b) - dateKey(a);
-  }
+    if (sortBy === "price") {
+      // Highest total paid first; tie-break by newest date
+      const cmp = (Number(b.totalPaidUsd) || 0) - (Number(a.totalPaidUsd) || 0);
+      return cmp !== 0 ? cmp : dateKey(b) - dateKey(a);
+    }
 
-  return 0;
-});
-
+    return 0;
+  });
 
   const handleSave = async () => {
     if (!editingItem?.id) return;
     await onUpdate({
       id: editingItem.id,
-      metal: editingItem.metal != null ? String(editingItem.metal).trim().toUpperCase() : undefined,
-      weightOtz: editingItem.weightOtz != null ? Number(editingItem.weightOtz) : undefined,
-      totalPaidUsd: editingItem.totalPaidUsd != null ? Number(editingItem.totalPaidUsd) : undefined, 
-      quantity: editingItem.quantity != null ? Number(editingItem.quantity) : undefined,
-      purchasedOn: editingItem.purchasedOn != null ? editingItem.purchasedOn : undefined,
+      metal:
+        editingItem.metal != null
+          ? String(editingItem.metal).trim().toUpperCase()
+          : undefined,
+      weightOtz:
+        editingItem.weightOtz != null
+          ? Number(editingItem.weightOtz)
+          : undefined,
+      totalPaidUsd:
+        editingItem.totalPaidUsd != null
+          ? Number(editingItem.totalPaidUsd)
+          : undefined,
+      quantity:
+        editingItem.quantity != null ? Number(editingItem.quantity) : undefined,
+      purchasedOn:
+        editingItem.purchasedOn != null ? editingItem.purchasedOn : undefined,
       notes: editingItem.notes,
     });
     setEditingItem(null);
@@ -99,9 +125,16 @@ const sortedStack = [...stack].sort((a, b) => {
             {recentItems.map((item) => (
               <div className="card" key={item.id}>
                 <h3>{item.metal}</h3>
-                <p><strong>Weight:</strong> {item.weightOtz ?? "—"} oz</p>
-                <p><strong>Total Paid:</strong> ${fmtMoney(item.totalPaidUsd)}</p>
-                <p><strong>Date:</strong> {(getDisplayDate(item) || new Date()).toLocaleDateString()}</p>
+                <p>
+                  <strong>Weight:</strong> {item.weightOtz ?? "—"} oz
+                </p>
+                <p>
+                  <strong>Total Paid:</strong> ${fmtMoney(item.totalPaidUsd)}
+                </p>
+                <p>
+                  <strong>Date:</strong>{" "}
+                  {(getDisplayDate(item) || new Date()).toLocaleDateString()}
+                </p>
               </div>
             ))}
           </div>
@@ -110,7 +143,10 @@ const sortedStack = [...stack].sort((a, b) => {
           <div className="controls">
             <label>
               Sort by:{" "}
-              <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              >
                 <option value="date">Date (Newest First)</option>
                 <option value="weight">Weight (Heaviest First)</option>
                 <option value="metal">Metal Type (A–Z)</option>
@@ -128,6 +164,7 @@ const sortedStack = [...stack].sort((a, b) => {
                   <th>Weight (otz)</th>
                   <th>Total Paid ($)</th>
                   <th>Date</th>
+                  <th>Notes</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -142,9 +179,16 @@ const sortedStack = [...stack].sort((a, b) => {
                           <input
                             type="text"
                             value={editingItem.metal ?? ""}
-                            onChange={(e) => setEditingItem({ ...editingItem, metal: e.target.value })}
+                            onChange={(e) =>
+                              setEditingItem({
+                                ...editingItem,
+                                metal: e.target.value,
+                              })
+                            }
                           />
-                        ) : (item.metal)}
+                        ) : (
+                          item.metal
+                        )}
                       </td>
 
                       <td>
@@ -153,9 +197,16 @@ const sortedStack = [...stack].sort((a, b) => {
                             type="number"
                             step="0.0001"
                             value={editingItem.weightOtz ?? ""}
-                            onChange={(e) => setEditingItem({ ...editingItem, weightOtz: e.target.value })}
+                            onChange={(e) =>
+                              setEditingItem({
+                                ...editingItem,
+                                weightOtz: e.target.value,
+                              })
+                            }
                           />
-                        ) : (item.weightOtz ?? "—")}
+                        ) : (
+                          item.weightOtz ?? "—"
+                        )}
                       </td>
 
                       <td>
@@ -164,31 +215,87 @@ const sortedStack = [...stack].sort((a, b) => {
                             type="number"
                             step="0.01"
                             value={editingItem.totalPaidUsd ?? ""}
-                            onChange={(e) => setEditingItem({ ...editingItem, totalPaidUsd: e.target.value })}
+                            onChange={(e) =>
+                              setEditingItem({
+                                ...editingItem,
+                                totalPaidUsd: e.target.value,
+                              })
+                            }
                           />
-                        ) : (`${fmtMoney(item.totalPaidUsd)}`)}
+                        ) : (
+                          `${fmtMoney(item.totalPaidUsd)}`
+                        )}
                       </td>
 
                       <td>
                         {isEditing ? (
                           <input
                             type="date"
-                            value={dateForInput(editingItem?.purchasedOn ?? editingItem?.date)}
-                            onChange={(e) => setEditingItem({ ...editingItem, purchasedOn: e.target.value })}
+                            value={dateForInput(
+                              editingItem?.purchasedOn ?? editingItem?.date
+                            )}
+                            onChange={(e) =>
+                              setEditingItem({
+                                ...editingItem,
+                                purchasedOn: e.target.value,
+                              })
+                            }
                           />
-                        ) : (d ? d.toLocaleDateString() : "—")}
+                        ) : d ? (
+                          d.toLocaleDateString()
+                        ) : (
+                          "—"
+                        )}
+                      </td>
+
+                      <td>
+                        {isEditing ? (
+                          <input
+                            type="text"
+                            value={editingItem.notes ?? ""}
+                            onChange={(e) =>
+                              setEditingItem({
+                                ...editingItem,
+                                notes: e.target.value,
+                              })
+                            }
+                            placeholder="Add notes…"
+                          />
+                        ) : (
+                          item.notes ?? "—"
+                        )}
                       </td>
 
                       <td>
                         {isEditing ? (
                           <>
-                            <button className="update-button" onClick={handleSave}>Save</button>
-                            <button className="cancel-button" onClick={() => setEditingItem(null)}>Cancel</button>
+                            <button
+                              className="update-button"
+                              onClick={handleSave}
+                            >
+                              Save
+                            </button>
+                            <button
+                              className="cancel-button"
+                              onClick={() => setEditingItem(null)}
+                            >
+                              Cancel
+                            </button>
                           </>
                         ) : (
                           <>
-                            <button className="edit-button" onClick={() => onEdit(item)}>Edit</button>
-                            <button className="delete-button" onClick={() => onDelete?.(item.id)}>Delete</button>
+                            <button
+                              className="edit-button"
+                              onClick={() => onEdit(item)}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              className="delete-button"
+                              onClick={() => onDelete?.(item.id)}
+                            >
+                              Delete
+                            </button>
                           </>
                         )}
                       </td>
