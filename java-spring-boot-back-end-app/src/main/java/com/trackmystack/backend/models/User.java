@@ -22,6 +22,9 @@ public class User {
     @Column(nullable = false, name = "password_hash")
     private String passwordHash;
 
+    @Column(name = "full_name")
+    private String fullName;
+
     @Column(nullable = false, name = "created_at")
     private Instant createdAt = Instant.now();
 }

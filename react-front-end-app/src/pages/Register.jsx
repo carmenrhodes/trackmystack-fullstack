@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom"
-import "./Register.css";
+import { useNavigate, Link } from "react-router-dom";
+import "./Auth.css";
 
 function Register() {
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -14,7 +15,6 @@ function Register() {
     e.preventDefault();
     setError("");
 
-    // frontend validation
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
@@ -25,28 +25,23 @@ function Register() {
       const res = await fetch("http://localhost:8080/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ fullName, email, password }),
       });
 
       if (!res.ok) {
         const text = await res.text().catch(() => "");
-        throw new Error(text || "Registration failed");
+        throw new Error(text || "Registration failed.");
       }
 
-      const responseData = await res.json().catch(() => null);
-      if (responseData?.token) {
-        localStorage.setItem("token", responseData.token);
-        localStorage.setItem("userEmail", responseData.email);
-        navigate("/home"); 
-} else {
-  console.error("Registration failed:", responseData);
-      }
-
-      const data = await res.json().catch(() => null)
+      const data = await res.json().catch(() => null);
       if (data?.token) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("userEmail", data.email);
-     navigate("/", { replace: true }); // auto-login
+        localStorage.setItem(
+          "firstName",
+          (fullName || "").split(" ")[0] || "Friend"
+        );
+        navigate("/", { replace: true });
       } else {
         navigate("/login");
       }
@@ -58,51 +53,81 @@ function Register() {
   }
 
   return (
-    <div className="page register-page">
-      <h1>Create Account</h1>
-      <form className="register-form" onSubmit={handleSubmit}>
-        <label>
-          Email
-          <input 
-          type="email" 
-          placeholder="you@example.com" 
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required/>
-        </label>
+    <div className="auth-page">
+      <div className="auth-card">
+        {/* Tabs */}
+        <div className="auth-tabs">
+          <Link to="/login" className="tab link-tab">
+            Login
+          </Link>
+          <button className="tab active">Register</button>
+        </div>
 
-        <label>
-          Password
-          <input 
-          type="password" 
-          placeholder="Choose a password" 
-          value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
+        <h1 className="auth-title">Create Account</h1>
+        <p className="auth-subtitle">
+          Start tracking your precious metals stack today.
+        </p>
+
+        <form className="auth-form" onSubmit={handleSubmit}>
+          <label className="auth-label">
+            Full Name
+            <input
+              type="text"
+              placeholder="John Doe"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              required
+              className="auth-input"
             />
-        </label>
+          </label>
 
-        <label>
-          Confirm Password
-          <input 
-          type="password" 
-          placeholder="Repeat password" 
-          value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
+          <label className="auth-label">
+            Email
+            <input
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="auth-input"
             />
-        </label>
+          </label>
 
-        {error && <p className="error-text">{error}</p>}
+          <label className="auth-label">
+            Password
+            <input
+              type="password"
+              placeholder="Choose a password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="auth-input"
+            />
+          </label>
 
-        <button type="submit" disabled={submitting}>
-          {submitting ? "Creating..." : "Sign Up"}
-        </button>
-      </form>
+          <label className="auth-label">
+            Confirm Password
+            <input
+              type="password"
+              placeholder="Repeat password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              className="auth-input"
+            />
+          </label>
 
-      <p className="small-note">
-        Already have an account? <Link to="/login">Log in</Link>
-      </p>
+          {error && <p className="auth-error">{error}</p>}
+
+          <button type="submit" disabled={submitting} className="auth-btn">
+            {submitting ? "Creating..." : "Create Account"}
+          </button>
+        </form>
+
+        <p className="auth-footer-text">
+          Already have an account? <Link to="/login">Log in</Link>
+        </p>
+      </div>
     </div>
   );
 }

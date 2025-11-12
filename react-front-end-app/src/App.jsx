@@ -64,15 +64,15 @@ const onAuthPage = location.pathname === '/login' || location.pathname === '/reg
   }, [loggedIn]);
 
  // Add a new stack item (POST to backend)
-const handleAddItem = async ({ metal, weightOtz, totalPaidUsd, purchasedOn }) => {
+const handleAddItem = async ({ metal, weightOtz, totalPaidUsd, purchasedOn, notes }) => {
   try {
     await addStackItem({
       metal,
       weightOtz: Number(weightOtz),
       totalPaidUsd: Number(totalPaidUsd),
-      purchasedOn,          // "YYYY-MM-DD"
+      purchasedOn,         
       quantity: 1,
-      notes: null,
+      notes: notes ?? null,
     });
     await refresh();
   } catch (err) {

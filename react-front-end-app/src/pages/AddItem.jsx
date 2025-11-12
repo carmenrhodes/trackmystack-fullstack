@@ -7,31 +7,39 @@ function AddItem({ onAdd }) {
   const [weight, setWeight] = useState("");
   const [totalPaid, setTotalPaid] = useState("");
   const [date, setDate] = useState("");
+  const [notes, setNotes] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     // Validates input and adds item to stack
     if (!metal || !weight || !totalPaid || !date) {
-      alert("Please fill in all fields.");
+      alert("Please fill in all required fields.");
       return;
     }
 
     const newItem = {
-    metal: String(metal).trim().toUpperCase(),
-    weightOtz: Number(weight),                
-    totalPaidUsd: Number(totalPaid),                  
-    purchasedOn: date, 
+      metal: String(metal).trim().toUpperCase(),
+      weightOtz: Number(weight),
+      totalPaidUsd: Number(totalPaid),
+      purchasedOn: date,
+      notes: notes.trim() || null,
+    };
+
+    try {
+      setSubmitting(true);
+      await onAdd(newItem);
+      setMetal("");
+      setWeight("");
+      setTotalPaid("");
+      setDate("");
+      setNotes("");
+    } catch (err) {
+      console.error("AddItem submit failed", err);
+    } finally {
+      setSubmitting(false);
+    }
   };
-
-  console.log("AddItem -> onAdd payload", newItem);
-
-  onAdd(newItem);
-
-  setMetal("");
-  setWeight("");
-  setTotalPaid("");
-  setDate("");
-};
 
   return (
     <div className="add-item-page">
@@ -61,16 +69,15 @@ function AddItem({ onAdd }) {
           </label>
 
           <label>
-  Total Price Paid (USD):
-  <input
-    type="number"
-    step="0.01"
-    min="0"
-    value={totalPaid}
-    onChange={(e) => setTotalPaid(e.target.value)}
-  />
-</label>
-
+            Total Price Paid (USD):
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              value={totalPaid}
+              onChange={(e) => setTotalPaid(e.target.value)}
+            />
+          </label>
 
           <label>
             Date:
@@ -81,15 +88,37 @@ function AddItem({ onAdd }) {
             />
           </label>
 
+          <label>
+            Notes (optional):
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Any additional details…"
+              rows="3"
+              style={{ resize: "vertical" }}
+            />
+          </label>
+
           <button type="submit">Add to Stack</button>
         </form>
 
         <div className="preview-card">
           <h3>Live Preview</h3>
-          <p><strong>Metal:</strong> {metal || "—"}</p>
-          <p><strong>Weight (otz):</strong> {weight || "—"}</p>
-          <p><strong>Purchase Price:</strong> {totalPaid || "—"}</p>
-          <p><strong>Date:</strong> {date || "—"}</p>
+          <p>
+            <strong>Metal:</strong> {metal || "—"}
+          </p>
+          <p>
+            <strong>Weight (otz):</strong> {weight || "—"}
+          </p>
+          <p>
+            <strong>Purchase Price:</strong> {totalPaid || "—"}
+          </p>
+          <p>
+            <strong>Date:</strong> {date || "—"}
+          </p>
+          <p>
+            <strong>Notes:</strong> {notes || "—"}
+          </p>
         </div>
       </div>
     </div>
