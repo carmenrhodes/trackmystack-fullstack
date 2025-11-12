@@ -18,11 +18,15 @@ import java.util.List;
 @RequestMapping("/api/user-stack")
 @RequiredArgsConstructor
 @CrossOrigin(origins = {"http://localhost:5173","http://localhost:3000"}, allowCredentials = "true")
+
+
+// REST controller for CRUD operations on a user's stack items. All methods assume a valid JWT and operate only on the current authenticated user.
 public class UserStackController {
 
     private final UserRepository userRepo;
     private final UserStackRepository stackRepo;
 
+    // Helper method to look up the currently authenticated User using the email stored by Spring Security in the Authentication object.
     private User currentUser() {
         var auth = org.springframework.security.core.context.SecurityContextHolder
                 .getContext().getAuthentication();
@@ -33,14 +37,14 @@ public class UserStackController {
         return userRepo.findByEmail(email).orElseThrow();
     }
 
-    // GET /api/user-stack
+    // GET /api/user-stack - Return all stack items that belong to the logged-in user.
     @GetMapping
     public List<UserStack> listMine() {
         User me = currentUser();
         return stackRepo.findAllByUser_Id(me.getId());
     }
 
-    // POST /api/user-stack -> create for current user
+    // POST /api/user-stack - Create a new stack item for the logged-in user.
     @PostMapping
     public ResponseEntity<UserStack> create(@RequestBody CreateOrUpdateStackItem req) {
         User me = currentUser();
@@ -74,7 +78,7 @@ public class UserStackController {
         return ResponseEntity.created(java.net.URI.create("/api/user-stack/" + saved.getId())).body(saved);
     }
 
-    // PUT /api/user-stack/{id} -> update if owner
+    // PUT /api/user-stack/{id} - Update an existing stack item, but only if it belongs to the logged-in user.
     @PutMapping("/{id}")
     public ResponseEntity<UserStack> update(@PathVariable Long id, @RequestBody CreateOrUpdateStackItem req) {
         User me = currentUser();
@@ -108,7 +112,7 @@ public class UserStackController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // DELETE /api/user-stack/{id} -> delete if owner
+    // DELETE /api/user-stack/{id} - Delete a stack item that belongs to the logged-in user.
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         User me = currentUser();

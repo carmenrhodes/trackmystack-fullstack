@@ -14,6 +14,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+/* Filter that runs once per request to:
+- Read the Authorization: Bearer <token> header
+- Validate the JWT
+- Load the user and set the Authentication in the SecurityContext */
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 
@@ -25,14 +29,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         this.userDetailsService = userDetailsService;
     }
 
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain chain)
             throws ServletException, IOException {
 
-        // Skip auth endpoints
         String path = request.getRequestURI();
+        // Skip JWT processing for auth endpoints (register/login)
         if (path.startsWith("/api/auth/")) {
             chain.doFilter(request, response);
             return;

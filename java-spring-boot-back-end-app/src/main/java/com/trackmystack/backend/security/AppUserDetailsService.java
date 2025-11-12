@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+// Tells Spring Security how to load users from database.
 @Service
 public class AppUserDetailsService implements UserDetailsService {
 
@@ -19,6 +20,7 @@ public class AppUserDetailsService implements UserDetailsService {
         this.userRepo = userRepo;
     }
 
+    // Look up a User by email and adapt it into Spring Security's UserDetails type.
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User u = userRepo.findByEmail(email)

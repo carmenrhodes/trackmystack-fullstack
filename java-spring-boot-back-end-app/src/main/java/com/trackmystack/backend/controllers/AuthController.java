@@ -18,6 +18,9 @@ import java.time.Instant;
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 @CrossOrigin(origins = {"http://localhost:5173","http://localhost:3000"}, allowCredentials = "true")
+
+// Handles user registration, login, and the /me endpoint.
+// Uses JWT for stateless auth and stores users in the database.
 public class AuthController {
 
     private final AuthenticationManager authManager;
@@ -25,6 +28,7 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
+    // Register a new user account, hash their password, save them in the database, and return a JWT and basic profile info.
     // POST /api/auth/register
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest req) {
@@ -43,6 +47,7 @@ public class AuthController {
         return ResponseEntity.ok(new AuthResponse(token, u.getEmail(), u.getFullName(), u.getId()));
     }
 
+    // Log in an existing user by verifying email/password. On success, return a fresh JWT + basic profile info.
     // POST /api/auth/login
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest req) {
@@ -65,8 +70,8 @@ public class AuthController {
         return ResponseEntity.ok(new AuthResponse(token, u.getEmail(), u.getFullName(), u.getId()));
     }
 
-    // GET /api/auth/me — info from JWT
-
+    // Return the current logged-in user's info, based on the JWT in the Authorization header.
+    // GET /api/auth/me
     @GetMapping("/me")
     public ResponseEntity<?> me(@RequestHeader(name="Authorization", required=false) String authHeader) {
         try {

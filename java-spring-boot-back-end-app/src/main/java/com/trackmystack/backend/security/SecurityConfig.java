@@ -22,6 +22,10 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
+/* Spring Security configuration for JWT-based, stateless authentication.
+- Permits /api/auth/** endpoints
+- Requires authentication for all other endpoints
+- Installs JwtAuthFilter before UsernamePasswordAuthenticationFilter */
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
@@ -37,16 +41,21 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                // Enable CORS using our CorsConfigurationSource bean
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // Allow auth endpoints and OPTIONS requests without a token
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/actuator/**", "/error").permitAll()
+                        // Everything else requires a valid JWT
                         .anyRequest().authenticated()
                 )
+                // Use DAO-based authentication with our UserDetailsService + password encoder
                 .authenticationProvider(daoAuthProvider())
+                // Run JWT filter before the standard username/password filter
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
