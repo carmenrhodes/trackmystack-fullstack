@@ -9,7 +9,7 @@ export default function ProtectedRoute() {
   const location = useLocation();
 
   if (!isLoggedIn()) {
-    // send them to /login and remember where they were headed
+    // send user to /login and remember where they were headed
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
 

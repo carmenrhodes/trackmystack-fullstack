@@ -66,8 +66,8 @@ public class StackActivityController {
     @Data
     public static class CreateActivity {
         private Long userId;
-        private StackActivity.Type type; // BUY or SELL
-        private Metal metal;             // GOLD, SILVER, PLATINUM, etc.
+        private StackActivity.Type type;
+        private Metal metal;
         private BigDecimal quantityOtz;
         private BigDecimal unitPriceUsd;
         private BigDecimal feesUsd;

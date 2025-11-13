@@ -2,10 +2,6 @@ import { useEffect, useState } from "react";
 import QuickAdd from "../components/QuickAdd";
 import "./Home.css";
 import SpotPrices from "../components/SpotPrices";
-/* Import for test functions 
-import { calculateTotalValue, calculateTotalWeight } from "../utils/utils";*/
-// import { useState, useEffect } from "react";
-// import { mockStacks } from "../utils/mockData";
 
 const API_BASE = (
   import.meta?.env?.VITE_API_URL || "http://localhost:8080/api"
@@ -42,9 +38,7 @@ function Home({ stack, onAdd }) {
       })
       .catch(() => {});
   }, []);
-  /*const useMockData = true; // change to false after testing
-    const [totalWeight, setTotalWeight] = useState(0);
-    const [totalValue, setTotalValue] = useState(0); */
+
   const num = (v, fallback = 0) => {
     const n = Number(v);
     return Number.isFinite(n) ? n : fallback;
@@ -60,36 +54,6 @@ function Home({ stack, onAdd }) {
     (sum, i) => sum + num(i?.totalPaidUsd ?? price),
     0
   );
-
-  /* For testing
-    const totalWeight = calculateTotalWeight(stack);
-    const totalValue = calculateTotalValue(stack);*/
-
-  /* useEffect(() => {
-        if (useMockData) {
-            // pretend these totals are calculated from the backend
-            // either hardcode OR calculate from mockStacks
-            const weightFromMock = mockStacks.reduce(
-                (sum, item) => sum + (item.weightOtz || item.weight || 0),
-                0
-            );
-
-            
-            const valueFromMock = 7842.0;
-
-            setTotalWeight(weightFromMock);
-            setTotalValue(valueFromMock);
-        } else {
-            
-            const weightReal = stack.reduce((sum, i) => sum + i.weight, 0);
-            const valueReal = stack.reduce((sum, i) => sum + i.price, 0);
-
-            setTotalWeight(weightReal);
-            setTotalValue(valueReal);
-
-        
-        }
-    }, [useMockData, stack]); */
 
   return (
     <div className="dashboard-container">

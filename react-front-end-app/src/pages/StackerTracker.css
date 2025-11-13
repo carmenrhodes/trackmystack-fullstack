@@ -126,8 +126,7 @@
 
   .stacker-tracker {
     margin: 0 !important;
-    padding: 0.5rem !important; /* keeps breathing room but removes left gap */
-    width: 100% !important;
+    padding: 0.5rem !important; 
   }
 
   .recent-cards {
