@@ -35,13 +35,24 @@
     left: 1rem;
     z-index: 20;
   }
+
+  .header-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .logout-button {
+    position: static !important;
+    margin-top: 0.25rem;
+  }
 }
 
 .logout-container {
   position: absolute;
-  right: 2rem;
-  bottom: 0.8rem;
-}
+  right: 1rem;
+  bottom: 0.3rem;
+} 
 
 .logout-btn {
   background: transparent;
@@ -56,3 +67,4 @@
 .logout-btn:hover {
   opacity: 0.8;
 }
+

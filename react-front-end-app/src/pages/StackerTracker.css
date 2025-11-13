@@ -2,7 +2,7 @@
   max-width: 1000px;
   width: 100%;
   margin: 3rem auto;
-  padding: 1rem;
+  padding: 1rem 1.25rem;
   background-color: #f5f5f5;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -16,7 +16,7 @@
 
 .recent-cards {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1rem;
   margin-bottom: 2rem;
 }
@@ -111,9 +111,23 @@
 
 /* Responsive styling for iPhone 14 */
 @media (max-width: 768px) {
+   body, html {
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow-x: hidden !important;
+  }
+
+  .layout,
+  .content,
+  main.content {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
   .stacker-tracker {
-    margin: 0;
-    padding: 1rem;
+    margin: 0 !important;
+    padding: 0.5rem !important; /* keeps breathing room but removes left gap */
+    width: 100% !important;
   }
 
   .recent-cards {
@@ -121,7 +135,18 @@
   }
 
   .stack-table-wrapper {
+    margin-top: 0.75rem;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .stack-table {
+    font-size: 0.85rem;
+  }
+
+  .stack-table th,
+  .stack-table td {
+    padding: 0.5rem 0.4rem;
   }
 }
 
