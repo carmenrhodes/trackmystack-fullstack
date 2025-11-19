@@ -225,16 +225,16 @@ View the digital ERD here:
 TrackMyStack uses a MySQL relational schema consisting of:
 
 - **user**  
-  Stores registered users (email, password hash, name)
+  Stores registered users (email, password hash, full name, created timestamp).
 
 - **user_stack**  
-  Stores all inventory items associated with each user
+  Stores all inventory items associated with each user (metal, weight, quantity, total paid, etc.).
 
 - **spot_prices**  
-  Caches metal spot prices from MetalpriceAPI
+  Caches metal spot prices from MetalpriceAPI (price per otz and when it was retrieved).
 
 - **stack_activity**  
-  Minimal logging table for user actions (future audit features)
+  Stores buy/sell actions for a user’s stack (metal, type, quantity, unit price, fees, executed time).
 
 ### **Relationships**
 - `user` **1 → many** `user_stack`  
